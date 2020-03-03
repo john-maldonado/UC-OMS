@@ -1,10 +1,13 @@
+import operator
+
 # pylint: disable=no-name-in-module
 from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog
-from PySide2.QtCore import QFile, QDate
+from PySide2.QtCore import Qt, QFile, QDate, QAbstractTableModel, SIGNAL
 # pylint: enable=no-name-in-module
 
 from SalesOrderEntryForm import Ui_SalesOrderEntryForm
 from SalesOrderEntryVerifyDialog import Ui_SalesOrderEntryVerifyDialog
+from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
 
 # Sales Order Entry Verification Dialog
 class SalesOrderEntryVerifyDialog(QDialog):
@@ -52,3 +55,53 @@ class SalesOrderEntryForm(QDialog):
     def cancel(self):
         print('Cancel')
         self.close()
+
+# Open Sales Orders Dialog
+
+class OpenSalesOrderDialog(QDialog):
+    def __init__(self):
+        super(OpenSalesOrderDialog, self).__init__()
+        self.ui = Ui_OpenSalesOrderDialog()
+        self.ui.setupUi(self)
+
+    def populateTable(self, data_list, header):
+        table_model = MyTableModel(self, data_list, header)
+        self.ui.tableView.setModel(table_model)
+         # set column width to fit contents (set font first!)
+        self.ui.tableView.resizeColumnsToContents()
+        # enable sorting
+        self.ui.tableView.setSortingEnabled(True)
+        
+# Table Model Definition
+class MyTableModel(QAbstractTableModel):
+    def __init__(self, parent, mylist, header, *args):
+        QAbstractTableModel.__init__(self, parent, *args)
+        self.mylist = mylist
+        self.header = header
+
+    def rowCount(self, parent):
+        return len(self.mylist)
+
+    def columnCount(self, parent):
+        return len(self.mylist[0])
+
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        elif role != Qt.DisplayRole:
+            return None
+        return self.mylist[index.row()][index.column()]
+
+    def headerData(self, col, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.header[col]
+        return None
+
+    def sort(self, col, order):
+        """sort table by given column number col"""
+        self.emit(SIGNAL("layoutAboutToBeChanged()"))
+        self.mylist = sorted(self.mylist,
+                             key=operator.itemgetter(col))
+        if order == Qt.DescendingOrder:
+            self.mylist.reverse()
+        self.emit(SIGNAL("layoutChanged()"))
