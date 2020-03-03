@@ -285,9 +285,7 @@ def translateSalesOrdersResults(results, fields):
       # Translate dollar amounts
       elif ((field == 'invoice_amount') or (field == 'paid_amount')):
         if not (row[j] == None):
-          print(row[j])
           row[j] = '${:,.2f}'.format(row[j])
-          print(row[j])
       # If translation not defined, pass original value
       else:
         row[j] = row[j]
