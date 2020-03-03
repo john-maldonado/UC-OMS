@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>740</width>
+    <width>910</width>
     <height>470</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Open Sales Orders</string>
@@ -18,7 +24,7 @@
     <rect>
      <x>20</x>
      <y>430</y>
-     <width>701</width>
+     <width>871</width>
      <height>32</height>
     </rect>
    </property>
@@ -34,7 +40,7 @@
     <rect>
      <x>20</x>
      <y>50</y>
-     <width>701</width>
+     <width>871</width>
      <height>361</height>
     </rect>
    </property>
@@ -44,7 +50,7 @@
     <rect>
      <x>0</x>
      <y>10</y>
-     <width>741</width>
+     <width>911</width>
      <height>20</height>
     </rect>
    </property>
