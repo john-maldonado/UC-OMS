@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 # pylint: disable=no-name-in-module
 from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog
 from PySide2.QtCore import QFile, QDate
@@ -8,6 +9,10 @@ from LoginSystem import LoginInterface
 from LoginForm import Ui_LoginForm
 from MainMenu import Ui_MainMenu
 from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog
+
+from db_interface import (
+    db_connect, query_allopen, translateSalesOrdersResults, prettySalesOrderHeaders
+)
 
 qt_app = QApplication(sys.argv)
 login_sys = LoginInterface()
@@ -73,8 +78,10 @@ class MainMenu(QWidget):
     def reviewOpenSalesOrders(self):
         print('Review Open Sales Orders')
         dialog = OpenSalesOrderDialog()
-        data = [('This', 1, 2),('That', 3 , 4)]
-        headers = ['Lorem', 'Ipsum', 'Dolor']
+        db_connection = db_connect()
+        results, fields = query_allopen(db_connection)
+        data = translateSalesOrdersResults(results, fields)
+        headers = prettySalesOrderHeaders(fields)
         dialog.populateTable(data, headers)
         dialog.exec_()
 

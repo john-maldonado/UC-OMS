@@ -36,7 +36,7 @@ def query_all(db_connection):
 
 def query_allopen(db_connection):
   table = "sales_orders"
-  fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'closed']
+  fields = ['so_id', 'so_number', 'description', 'customer', 'order_date','due_date', 'completed', 'invoiced', 'invoice_amount', 'paid_amount', 'paid_full']
   fieldsString = assembleSQLFields(fields)
   condition = "closed = 0"
   mycursor = db_connection.cursor()
@@ -44,7 +44,7 @@ def query_allopen(db_connection):
   sql = sql.format(fieldsString, table, condition)
   mycursor.execute(sql)
   myresult = mycursor.fetchall()
-  print(tabulate(myresult, headers=fields, tablefmt='psql'))
+  return myresult, fields
 
 def query_insertIntoTimeLog(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
@@ -263,3 +263,46 @@ def assembleSQLFields(fields):
         stingFormat = "{}, {}"
         fieldsString = stingFormat.format(fieldsString,x)
   return fieldsString
+
+def translateSalesOrdersResults(results, fields):
+  for i in range(len(results)):
+    row = results[i]
+    row = list(row)
+    for j in range(len(row)):
+      field = fields[j]
+      # Translate entered_ts
+      if field == 'entered_ts':
+        row[j] = row[j].strftime("%m/%d/%Y, %H:%M:%S")
+      # Translate dates
+      elif ((field == 'order_date') or (field == 'due_date') or (field == 'invoice_date') or (field == 'paid_date')):
+        row[j] = row[j].strftime("%m/%d/%Y")
+      # Translate booleans
+      elif ((field == 'completed') or (field == 'invoiced') or (field == 'paid_full') or (field == 'closed')):
+        if row[j] == 1:
+          row[j] = 'Yes'
+        else:
+          row[j] = 'No'
+      # Translate dollar amounts
+      elif ((field == 'invoice_amount') or (field == 'paid_amount')):
+        if not (row[j] == None):
+          print(row[j])
+          row[j] = '${:,.2f}'.format(row[j])
+          print(row[j])
+      # If translation not defined, pass original value
+      else:
+        row[j] = row[j]
+    row = tuple(row)
+    results[i] = row
+  return results
+
+def prettySalesOrderHeaders(fields):
+  for i in range(len(fields)):
+    field = fields[i]
+    all_fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced','invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
+    all_pretty_headers = ['SO ID', 'Time Stamp', 'SO Number', 'Description', 'Customer', 'Order Date', 'Due Date', 'Quote Number', 'Customer PO', 'Completed Date', 'Completed', 'Invoiced', 'Invoice No', 'Invoice Date', 'Invoice Amount', 'Paid In Full', 'Paid Date', 'Paid Amount', 'Closed']
+    if field in all_fields:
+      index = all_fields.index(field)
+      fields[i] = all_pretty_headers[index]
+    else:
+      fields[i] = field
+  return fields
