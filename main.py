@@ -11,7 +11,7 @@ from MainMenu import Ui_MainMenu
 from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog
 
 from db_interface import (
-    db_connect, query_allopen, translateSalesOrdersResults, prettySalesOrderHeaders
+    db_connect, query_allopen, translateResults, prettyHeaders
 )
 
 qt_app = QApplication(sys.argv)
@@ -80,8 +80,8 @@ class MainMenu(QWidget):
         dialog = OpenSalesOrderDialog()
         db_connection = db_connect()
         results, fields = query_allopen(db_connection)
-        data = translateSalesOrdersResults(results, fields)
-        headers = prettySalesOrderHeaders(fields)
+        data = translateResults(results, fields)
+        headers = prettyHeaders(fields)
         dialog.populateTable(data, headers)
         dialog.exec_()
 

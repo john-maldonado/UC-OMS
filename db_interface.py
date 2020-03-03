@@ -264,7 +264,7 @@ def assembleSQLFields(fields):
         fieldsString = stingFormat.format(fieldsString,x)
   return fieldsString
 
-def translateSalesOrdersResults(results, fields):
+def translateResults(results, fields):
   for i in range(len(results)):
     row = results[i]
     row = list(row)
@@ -293,7 +293,7 @@ def translateSalesOrdersResults(results, fields):
     results[i] = row
   return results
 
-def prettySalesOrderHeaders(fields):
+def prettyHeaders(fields):
   for i in range(len(fields)):
     field = fields[i]
     all_fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced','invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
