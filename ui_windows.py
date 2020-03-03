@@ -9,6 +9,10 @@ from SalesOrderEntryForm import Ui_SalesOrderEntryForm
 from SalesOrderEntryVerifyDialog import Ui_SalesOrderEntryVerifyDialog
 from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
 
+from db_interface import (
+    db_connect, query_insertIntoSalesOrders, query_maxSalesOrder
+)
+
 # Sales Order Entry Verification Dialog
 class SalesOrderEntryVerifyDialog(QDialog):
     def __init__(self):
@@ -41,16 +45,20 @@ class SalesOrderEntryForm(QDialog):
         dialog.ui.textBrowser.setText(order_details)
         response = dialog.exec_()
         if response == 1:
-            print('Yes')
-            print('SQL INSERT')
+            db_connection = db_connect()
+            maxSalesOrder = query_maxSalesOrder(db_connection)
+            maxSalesOrder = maxSalesOrder[2 : : ]
+            maxSalesOrderInt = int(maxSalesOrder)
+            newSalesOrderInt = maxSalesOrderInt + 1
+            newSalesOrder = "SO{}".format(newSalesOrderInt)
+            salesOrder = newSalesOrder
+            query_insertIntoSalesOrders(db_connection, salesOrder, description, customer, order_date, due_date)
             msgbox = QMessageBox()
-            msgbox.setText('Order entered successfully.')
+            msgbox.setText("Order entered successfully.<br>SO Number: {}".format(salesOrder))
             msgbox.setStyleSheet("QLabel{min-width: 175px;}")
             msgbox.setWindowTitle('Sales Order Entry')
             msgbox.exec_()
             self.close()
-        elif response == 0:
-            print('No')
 
     def cancel(self):
         print('Cancel')
