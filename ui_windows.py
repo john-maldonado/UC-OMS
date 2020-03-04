@@ -182,6 +182,8 @@ class TimeLogDialog(QDialog):
                     db_connection = db_connect()
                     query_updateTimeLogSingleField(db_connection, log_id, field, activity)
                     self.refreshTable()
+        else:
+            QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
 
     def exit(self):
         self.close()
