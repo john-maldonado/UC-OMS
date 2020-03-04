@@ -90,6 +90,7 @@ class TimeLogDialog(QDialog):
         self.ui.clockOut.clicked.connect(self.clockOut)
         self.ui.close.clicked.connect(self.exit)
         self.ui.deleteButton.clicked.connect(self.delete)
+        self.ui.edit.clicked.connect(self.edit)
         self.soSearch()
     
     def clockIn(self):
@@ -131,6 +132,16 @@ class TimeLogDialog(QDialog):
                 self.refreshTable()
         else:
             QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
+
+    def edit(self):
+        row_index = self.ui.tableView.selectionModel().currentIndex().row()
+        column_index = self.ui.tableView.selectionModel().currentIndex().column()
+        index = self.ui.tableView.model().index(row_index, column_index)
+        item_data = self.ui.tableView.model().itemData(index)
+        data = item_data.get(0)
+        header = self.table_headers[column_index]
+        foo = "{} {}".format(header, data)
+        QMessageBox.information(self, 'Info', foo, QMessageBox.Ok)
 
     def exit(self):
         self.close()
