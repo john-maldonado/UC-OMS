@@ -89,7 +89,7 @@
    <property name="geometry">
     <rect>
      <x>490</x>
-     <y>140</y>
+     <y>170</y>
      <width>80</width>
      <height>23</height>
     </rect>
@@ -102,7 +102,7 @@
    <property name="geometry">
     <rect>
      <x>490</x>
-     <y>170</y>
+     <y>200</y>
      <width>80</width>
      <height>23</height>
     </rect>
@@ -124,7 +124,30 @@
     <string>Close</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="total">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>140</y>
+     <width>80</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Total</string>
+   </property>
+  </widget>
  </widget>
+ <tabstops>
+  <tabstop>soSearch</tabstop>
+  <tabstop>clockIn</tabstop>
+  <tabstop>clockOut</tabstop>
+  <tabstop>total</tabstop>
+  <tabstop>edit</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>tableView</tabstop>
+  <tabstop>close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -270,8 +270,8 @@ def translateResults(results, fields):
     row = list(row)
     for j in range(len(row)):
       field = fields[j]
-      # Translate entered_ts
-      if field == 'entered_ts':
+      # Translate time stamps
+      if ((field == 'entered_ts') or (field == 'clockin_ts') or (field == 'clockout_ts')):
         row[j] = row[j].strftime("%m/%d/%Y, %H:%M:%S")
       # Translate dates
       elif ((field == 'order_date') or (field == 'due_date') or (field == 'invoice_date') or (field == 'paid_date')):
@@ -296,8 +296,8 @@ def translateResults(results, fields):
 def prettyHeaders(fields):
   for i in range(len(fields)):
     field = fields[i]
-    all_fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced','invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
-    all_pretty_headers = ['SO ID', 'Time Stamp', 'SO Number', 'Description', 'Customer', 'Order Date', 'Due Date', 'Quote Number', 'Customer PO', 'Completed Date', 'Completed', 'Invoiced', 'Invoice No', 'Invoice Date', 'Invoice Amount', 'Paid In Full', 'Paid Date', 'Paid Amount', 'Closed']
+    all_fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced','invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed', 'log_id', 'clockin_ts', 'clockout_ts', 'activity']
+    all_pretty_headers = ['SO ID', 'Time Stamp', 'SO Number', 'Description', 'Customer', 'Order Date', 'Due Date', 'Quote Number', 'Customer PO', 'Completed Date', 'Completed', 'Invoiced', 'Invoice No', 'Invoice Date', 'Invoice Amount', 'Paid In Full', 'Paid Date', 'Paid Amount', 'Closed', 'Log ID', 'Clock In', 'Clock Out', 'Activity']
     if field in all_fields:
       index = all_fields.index(field)
       fields[i] = all_pretty_headers[index]

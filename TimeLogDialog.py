@@ -44,13 +44,23 @@ class Ui_TimeLogDialog(object):
         self.clockOut.setGeometry(QRect(490, 110, 80, 23))
         self.edit = QPushButton(TimeLogDialog)
         self.edit.setObjectName(u"edit")
-        self.edit.setGeometry(QRect(490, 140, 80, 23))
+        self.edit.setGeometry(QRect(490, 170, 80, 23))
         self.deleteButton = QPushButton(TimeLogDialog)
         self.deleteButton.setObjectName(u"deleteButton")
-        self.deleteButton.setGeometry(QRect(490, 170, 80, 23))
+        self.deleteButton.setGeometry(QRect(490, 200, 80, 23))
         self.close = QPushButton(TimeLogDialog)
         self.close.setObjectName(u"close")
         self.close.setGeometry(QRect(490, 350, 80, 23))
+        self.total = QPushButton(TimeLogDialog)
+        self.total.setObjectName(u"total")
+        self.total.setGeometry(QRect(490, 140, 80, 23))
+        QWidget.setTabOrder(self.soSearch, self.clockIn)
+        QWidget.setTabOrder(self.clockIn, self.clockOut)
+        QWidget.setTabOrder(self.clockOut, self.total)
+        QWidget.setTabOrder(self.total, self.edit)
+        QWidget.setTabOrder(self.edit, self.deleteButton)
+        QWidget.setTabOrder(self.deleteButton, self.tableView)
+        QWidget.setTabOrder(self.tableView, self.close)
 
         self.retranslateUi(TimeLogDialog)
 
@@ -66,5 +76,6 @@ class Ui_TimeLogDialog(object):
         self.edit.setText(QCoreApplication.translate("TimeLogDialog", u"Edit", None))
         self.deleteButton.setText(QCoreApplication.translate("TimeLogDialog", u"Delete", None))
         self.close.setText(QCoreApplication.translate("TimeLogDialog", u"Close", None))
+        self.total.setText(QCoreApplication.translate("TimeLogDialog", u"Total", None))
     # retranslateUi
 

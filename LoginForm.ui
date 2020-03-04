@@ -26,13 +26,13 @@
     <string>Login</string>
    </property>
    <property name="autoDefault">
-    <bool>false</bool>
-   </property>
-   <property name="default">
     <bool>true</bool>
    </property>
+   <property name="default">
+    <bool>false</bool>
+   </property>
   </widget>
-  <widget class="QPushButton" name="cancel">
+  <widget class="QPushButton" name="exit">
    <property name="geometry">
     <rect>
      <x>270</x>
@@ -42,7 +42,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>Cancel</string>
+    <string>Exit</string>
+   </property>
+   <property name="autoDefault">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="label">
@@ -125,6 +128,12 @@ Order Management System</string>
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>username</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>login</tabstop>
+  <tabstop>exit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

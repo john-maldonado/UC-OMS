@@ -8,7 +8,7 @@ from PySide2.QtCore import QFile, QDate
 from LoginSystem import LoginInterface
 from LoginForm import Ui_LoginForm
 from MainMenu import Ui_MainMenu
-from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog
+from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog, TimeLogDialog
 
 from db_interface import (
     db_connect, query_allopen, translateResults, prettyHeaders
@@ -24,9 +24,11 @@ class LoginForm(QWidget):
         super(LoginForm, self).__init__()
         self.ui = Ui_LoginForm()
         self.ui.setupUi(self)
-        self.ui.cancel.clicked.connect(self.cancel)
+        self.ui.exit.clicked.connect(self.exit)
         self.ui.login.clicked.connect(self.login)
+        self.ui.password.returnPressed.connect(self.login)
         self.action = 'none'
+        self.ui.username.setFocus()
     
     def login(self):
         user = self.ui.username.text()
@@ -43,8 +45,8 @@ class LoginForm(QWidget):
             msg_box.exec_()
 
 
-    def cancel(self):
-        self.action = 'cancel'
+    def exit(self):
+        self.action = 'exit'
         self.close()
 
 
@@ -63,7 +65,12 @@ class MainMenu(QWidget):
         self.ui.newSalesOrder.clicked.connect(self.newSalesOrder)
         self.ui.logout.clicked.connect(self.logout)
         self.ui.viewOpenOrders.clicked.connect(self.reviewOpenSalesOrders)
+        self.ui.timeLog.clicked.connect(self.timeLog)
         self.action = 'none'
+
+    def timeLog(self):
+        dialog = TimeLogDialog()
+        dialog.exec_()
 
     def logout(self):
         login_sys.logout()

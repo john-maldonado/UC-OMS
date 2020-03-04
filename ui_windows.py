@@ -1,16 +1,17 @@
 import operator
 
 # pylint: disable=no-name-in-module
-from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog
+from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog, QInputDialog
 from PySide2.QtCore import Qt, QFile, QDate, QAbstractTableModel, SIGNAL
 # pylint: enable=no-name-in-module
 
 from SalesOrderEntryForm import Ui_SalesOrderEntryForm
 from SalesOrderEntryVerifyDialog import Ui_SalesOrderEntryVerifyDialog
 from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
+from TimeLogDialog import Ui_TimeLogDialog
 
 from db_interface import (
-    db_connect, query_insertIntoSalesOrders, query_maxSalesOrder
+    db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders
 )
 
 # Sales Order Entry Verification Dialog
@@ -65,7 +66,6 @@ class SalesOrderEntryForm(QDialog):
         self.close()
 
 # Open Sales Orders Dialog
-
 class OpenSalesOrderDialog(QDialog):
     def __init__(self):
         super(OpenSalesOrderDialog, self).__init__()
@@ -80,6 +80,36 @@ class OpenSalesOrderDialog(QDialog):
         # enable sorting
         self.ui.tableView.setSortingEnabled(True)
         
+# Time Log Dialog
+class TimeLogDialog(QDialog):
+    def __init__(self):
+        super(TimeLogDialog, self).__init__()
+        self.ui = Ui_TimeLogDialog()
+        self.ui.setupUi(self)
+        self.ui.soSearch.clicked.connect(self.soSearch)
+        
+    def soSearch(self):
+        # input_box = QInputDialog()
+        # input_box.setLabelText('Sales Order Number:')
+        # response = input_box.exec_()
+        text, okPressed = QInputDialog.getText(self, "SO Search", "SO Number:")
+        if okPressed:
+            salesOrder = text
+            db_connection = db_connect()
+            results, fields = query_timeLogBySO(db_connection, salesOrder)
+            data = translateResults(results, fields)
+            headers = prettyHeaders(fields)
+            self.populateTable(data, headers)
+
+
+    def populateTable(self, data_list, header):
+        table_model = MyTableModel(self, data_list, header)
+        self.ui.tableView.setModel(table_model)
+         # set column width to fit contents (set font first!)
+        self.ui.tableView.resizeColumnsToContents()
+        # enable sorting
+        self.ui.tableView.setSortingEnabled(True)
+
 # Table Model Definition
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):

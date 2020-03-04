@@ -24,10 +24,11 @@ class Ui_LoginForm(object):
         self.login = QPushButton(LoginForm)
         self.login.setObjectName(u"login")
         self.login.setGeometry(QRect(180, 150, 75, 23))
-        self.login.setAutoDefault(False)
-        self.cancel = QPushButton(LoginForm)
-        self.cancel.setObjectName(u"cancel")
-        self.cancel.setGeometry(QRect(270, 150, 75, 23))
+        self.login.setAutoDefault(True)
+        self.exit = QPushButton(LoginForm)
+        self.exit.setObjectName(u"exit")
+        self.exit.setGeometry(QRect(270, 150, 75, 23))
+        self.exit.setAutoDefault(True)
         self.label = QLabel(LoginForm)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(0, 10, 361, 41))
@@ -52,10 +53,13 @@ class Ui_LoginForm(object):
         self.password.setGeometry(QRect(80, 110, 261, 20))
         self.password.setEchoMode(QLineEdit.Password)
         self.password.setClearButtonEnabled(True)
+        QWidget.setTabOrder(self.username, self.password)
+        QWidget.setTabOrder(self.password, self.login)
+        QWidget.setTabOrder(self.login, self.exit)
 
         self.retranslateUi(LoginForm)
 
-        self.login.setDefault(True)
+        self.login.setDefault(False)
 
 
         QMetaObject.connectSlotsByName(LoginForm)
@@ -64,7 +68,7 @@ class Ui_LoginForm(object):
     def retranslateUi(self, LoginForm):
         LoginForm.setWindowTitle(QCoreApplication.translate("LoginForm", u"Form", None))
         self.login.setText(QCoreApplication.translate("LoginForm", u"Login", None))
-        self.cancel.setText(QCoreApplication.translate("LoginForm", u"Cancel", None))
+        self.exit.setText(QCoreApplication.translate("LoginForm", u"Exit", None))
         self.label.setText(QCoreApplication.translate("LoginForm", u"Ultimate Controls, LLC. \n"
 "Order Management System", None))
         self.label_2.setText(QCoreApplication.translate("LoginForm", u"Username:", None))
