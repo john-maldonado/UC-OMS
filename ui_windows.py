@@ -11,7 +11,8 @@ from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
 from TimeLogDialog import Ui_TimeLogDialog
 
 from db_interface import (
-    db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders
+    db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders, query_insertIntoTimeLog,
+    query_deleteTimeLogByLogID, query_updateTimeLogClockOut
 )
 
 # Sales Order Entry Verification Dialog
@@ -87,19 +88,69 @@ class TimeLogDialog(QDialog):
         self.ui = Ui_TimeLogDialog()
         self.ui.setupUi(self)
         self.ui.soSearch.clicked.connect(self.soSearch)
+        self.ui.clockIn.clicked.connect(self.clockIn)
+        self.ui.clockOut.clicked.connect(self.clockOut)
+        self.ui.close.clicked.connect(self.exit)
+        self.ui.deleteButton.clicked.connect(self.delete)
+        self.soSearch()
+    
+    def clockIn(self):
+        sales_order = self.sales_order
+        db_connection = db_connect()
+        query_insertIntoTimeLog(db_connection, sales_order)
+        self.refreshTable()
+    
+    def clockOut(self):
+        log_id = self.getSelectedTableDataByColumn(0)
+        clockin_ts = self.getSelectedTableDataByColumn(2)
+        clockout_ts = self.getSelectedTableDataByColumn(3)
+        if not (log_id == None):
+            if not (clockin_ts == None):
+                if clockout_ts == None:
+                    text, okPressed = QInputDialog.getText(self, "Activity", "Activity:")
+                    if okPressed:
+                        activity = text
+                        db_connection = db_connect()
+                        query_updateTimeLogClockOut(db_connection, log_id, activity)
+                        self.refreshTable()
+                else:
+                    QMessageBox.warning(self, 'Error', 'Error: Already clocked out', QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, 'Error', 'Error: Not clocked in', QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
+
+    def delete(self):
+        log_id = self.getSelectedTableDataByColumn(0)
+        so_number = self.getSelectedTableDataByColumn(1)
+        activity = self.getSelectedTableDataByColumn(4)
+        if not (log_id == None):
+            message = 'Are you sure you want to delete this entry?<br>Log ID: {}<br>Sales Order: {}<br>Activity: {}'.format(log_id, so_number, activity)
+            reply = QMessageBox.question(self, 'Delete', message, QMessageBox.Yes, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                db_connection = db_connect()
+                query_deleteTimeLogByLogID(db_connection, log_id)
+                self.refreshTable()
+        else:
+            QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
+
+    def exit(self):
+        self.close()
         
     def soSearch(self):
-        # input_box = QInputDialog()
-        # input_box.setLabelText('Sales Order Number:')
-        # response = input_box.exec_()
         text, okPressed = QInputDialog.getText(self, "SO Search", "SO Number:")
         if okPressed:
-            salesOrder = text
-            db_connection = db_connect()
-            results, fields = query_timeLogBySO(db_connection, salesOrder)
-            data = translateResults(results, fields)
-            headers = prettyHeaders(fields)
-            self.populateTable(data, headers)
+            self.sales_order = text
+            self.refreshTable()
+    
+    def refreshTable(self):
+        db_connection = db_connect()
+        results, fields = query_timeLogBySO(db_connection, self.sales_order)
+        data = translateResults(results, fields)
+        headers = prettyHeaders(fields)
+        self.populateTable(data, headers)
+        self.table_data = data
+        self.table_headers = headers
 
 
     def populateTable(self, data_list, header):
@@ -109,6 +160,13 @@ class TimeLogDialog(QDialog):
         self.ui.tableView.resizeColumnsToContents()
         # enable sorting
         self.ui.tableView.setSortingEnabled(True)
+
+    def getSelectedTableDataByColumn(self, column_index):
+        row_index = self.ui.tableView.selectionModel().currentIndex().row()
+        index = self.ui.tableView.model().index(row_index, column_index)
+        item_data = self.ui.tableView.model().itemData(index)
+        return item_data.get(0)
+
 
 # Table Model Definition
 class MyTableModel(QAbstractTableModel):
