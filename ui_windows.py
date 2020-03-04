@@ -13,7 +13,7 @@ from DateTimeEditDialog import Ui_DateTimeEditDialog
 
 from db_interface import (
     db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders, query_insertIntoTimeLog,
-    query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField
+    query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField, query_timeLogTotalTimeBySO
 )
 
 # Sales Order Entry Verification Dialog
@@ -92,6 +92,7 @@ class TimeLogDialog(QDialog):
         self.ui.close.clicked.connect(self.exit)
         self.ui.deleteButton.clicked.connect(self.delete)
         self.ui.edit.clicked.connect(self.edit)
+        self.ui.total.clicked.connect(self.total)
         self.soSearch()
     
     def clockIn(self):
@@ -120,6 +121,13 @@ class TimeLogDialog(QDialog):
         else:
             QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
 
+    def total(self):
+        db_connection = db_connect()
+        total_time = query_timeLogTotalTimeBySO(db_connection, self.sales_order)
+        msg_box_text = "Sales Order: {}<br>Total Time: {} hrs".format(self.sales_order, total_time)
+        QMessageBox.information(self, 'Total Time', msg_box_text, QMessageBox.Ok)
+
+
     def delete(self):
         log_id = self.getSelectedTableDataByColumn(0)
         so_number = self.getSelectedTableDataByColumn(1)
@@ -144,12 +152,11 @@ class TimeLogDialog(QDialog):
         header = self.table_headers[column_index]
         if not (log_id == None):
             if header == "Log ID":
-                print('Cannot edit Log ID')
+                QMessageBox.warning(self, 'Error', 'Error: Can not edit Log ID', QMessageBox.Ok)
             elif header == "SO Number":
                 text, okPressed = QInputDialog.getText(self, "Edit SO Number", "SO Number:")
                 if okPressed:
                     so_number = text
-                    print(so_number)
                     field = 'so_number'
                     db_connection = db_connect()
                     query_updateTimeLogSingleField(db_connection, log_id, field, so_number)
@@ -159,7 +166,6 @@ class TimeLogDialog(QDialog):
                 dateTime, okPressed = dialog.getDateTime()
                 if okPressed:
                     clockin_ts = dateTime.toPython()
-                    print(clockin_ts)
                     field = 'clockin_ts'
                     query_updateTimeLogSingleField(db_connection, log_id, field, clockin_ts)
                     self.refreshTable()
@@ -168,7 +174,6 @@ class TimeLogDialog(QDialog):
                 dateTime, okPressed = dialog.getDateTime()
                 if okPressed:
                     clockout_ts = dateTime.toPython()
-                    print(clockout_ts)
                     field = 'clockout_ts'
                     db_connection = db_connect()
                     query_updateTimeLogSingleField(db_connection, log_id, field, clockout_ts)
@@ -177,7 +182,6 @@ class TimeLogDialog(QDialog):
                 text, okPressed = QInputDialog.getText(self, "Edit Activity", "Activity:")
                 if okPressed:
                     activity = text
-                    print(activity)
                     field = 'activity'
                     db_connection = db_connect()
                     query_updateTimeLogSingleField(db_connection, log_id, field, activity)

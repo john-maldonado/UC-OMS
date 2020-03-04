@@ -96,8 +96,6 @@ def query_timeLogTotalTimeBySO(db_connection, SalesOrder):
   mycursor = db_connection.cursor()
   mycursor.execute(sql)
   myresult = mycursor.fetchall()
-  tabulatedResult = tabulate(myresult, headers=fields, tablefmt='psql')
-  print(tabulatedResult)
   totalTime = datetime.timedelta(0)
   for result in myresult:
    lineTime = result[3]-result[2]
