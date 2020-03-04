@@ -24,6 +24,7 @@ class Ui_TimeLogDialog(object):
         self.tableView = QTableView(TimeLogDialog)
         self.tableView.setObjectName(u"tableView")
         self.tableView.setGeometry(QRect(10, 50, 461, 321))
+        self.tableView.setFocusPolicy(Qt.NoFocus)
         self.label = QLabel(TimeLogDialog)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(10, 10, 561, 20))
