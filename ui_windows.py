@@ -9,6 +9,7 @@ from SalesOrderEntryForm import Ui_SalesOrderEntryForm
 from SalesOrderEntryVerifyDialog import Ui_SalesOrderEntryVerifyDialog
 from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
 from TimeLogDialog import Ui_TimeLogDialog
+from DateTimeEditDialog import Ui_DateTimeEditDialog
 
 from db_interface import (
     db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders, query_insertIntoTimeLog,
@@ -134,14 +135,36 @@ class TimeLogDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
 
     def edit(self):
-        row_index = self.ui.tableView.selectionModel().currentIndex().row()
+        # row_index = self.ui.tableView.selectionModel().currentIndex().row()
         column_index = self.ui.tableView.selectionModel().currentIndex().column()
-        index = self.ui.tableView.model().index(row_index, column_index)
-        item_data = self.ui.tableView.model().itemData(index)
-        data = item_data.get(0)
+        # index = self.ui.tableView.model().index(row_index, column_index)
+        # item_data = self.ui.tableView.model().itemData(index)
+        # data = item_data.get(0)
         header = self.table_headers[column_index]
-        foo = "{} {}".format(header, data)
-        QMessageBox.information(self, 'Info', foo, QMessageBox.Ok)
+        if header == "Log ID":
+            print('Cannot edit Log ID')
+        elif header == "SO Number":
+            text, okPressed = QInputDialog.getText(self, "Edit SO Number", "SO Number:")
+            if okPressed:
+                so_number = text
+                print(so_number)
+        elif header == "Clock In":
+            dialog = DateTimeEditDialog('Edit Clock In', 'Clock In Time:')
+            dateTime, okPressed = dialog.getDateTime()
+            if okPressed:
+                clockin_ts = dateTime.toPython()
+                print(clockin_ts)
+        elif header == "Clock Out":
+            dialog = DateTimeEditDialog('Edit Clock Out', 'Clock Out Time:')
+            dateTime, okPressed = dialog.getDateTime()
+            if okPressed:
+                clockout_ts = dateTime.toPython()
+                print(clockout_ts)
+        elif header == "Activity":
+            text, okPressed = QInputDialog.getText(self, "Edit Activity", "Activity:")
+            if okPressed:
+                activity = text
+                print(activity)
 
     def exit(self):
         self.close()
@@ -174,6 +197,19 @@ class TimeLogDialog(QDialog):
         index = self.ui.tableView.model().index(row_index, column_index)
         item_data = self.ui.tableView.model().itemData(index)
         return item_data.get(0)
+
+class DateTimeEditDialog(QDialog):
+    def __init__(self, windowTitle, labelText):
+        super(DateTimeEditDialog, self).__init__()
+        self.ui = Ui_DateTimeEditDialog()
+        self.ui.setupUi(self)
+        self.ui.dateTimeEdit.setDate(QDate.currentDate())
+        self.setWindowTitle(windowTitle)
+        self.ui.label.setText(labelText)
+
+    def getDateTime(self):
+        response = self.exec_()
+        return self.ui.dateTimeEdit.dateTime(), response
 
 # Table Model Definition
 class MyTableModel(QAbstractTableModel):

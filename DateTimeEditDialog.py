@@ -37,7 +37,7 @@ class Ui_DateTimeEditDialog(object):
         self.dateTimeEdit.setCalendarPopup(True)
         self.label = QLabel(DateTimeEditDialog)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(10, 10, 47, 13))
+        self.label.setGeometry(QRect(10, 10, 201, 16))
 
         self.retranslateUi(DateTimeEditDialog)
         self.buttonBox.accepted.connect(DateTimeEditDialog.accept)
