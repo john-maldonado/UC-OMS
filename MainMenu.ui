@@ -55,6 +55,9 @@
    <property name="text">
     <string>View Open Orders</string>
    </property>
+   <property name="autoDefault">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="newSalesOrder">
    <property name="geometry">
@@ -67,6 +70,9 @@
    </property>
    <property name="text">
     <string>New Sales Order</string>
+   </property>
+   <property name="autoDefault">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="salesOrderSearch">
@@ -81,6 +87,9 @@
    <property name="text">
     <string>Sales Order Search</string>
    </property>
+   <property name="autoDefault">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="updateSalesOrder">
    <property name="geometry">
@@ -93,6 +102,9 @@
    </property>
    <property name="text">
     <string>Update Sales Order</string>
+   </property>
+   <property name="autoDefault">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="timeLog">
@@ -107,6 +119,9 @@
    <property name="text">
     <string>Time Log</string>
    </property>
+   <property name="autoDefault">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="logout">
    <property name="geometry">
@@ -120,8 +135,19 @@
    <property name="text">
     <string>Logout</string>
    </property>
+   <property name="autoDefault">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>viewOpenOrders</tabstop>
+  <tabstop>newSalesOrder</tabstop>
+  <tabstop>updateSalesOrder</tabstop>
+  <tabstop>salesOrderSearch</tabstop>
+  <tabstop>timeLog</tabstop>
+  <tabstop>logout</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -21,6 +21,11 @@ class Ui_LoginForm(object):
         if LoginForm.objectName():
             LoginForm.setObjectName(u"LoginForm")
         LoginForm.resize(362, 192)
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(LoginForm.sizePolicy().hasHeightForWidth())
+        LoginForm.setSizePolicy(sizePolicy)
         self.login = QPushButton(LoginForm)
         self.login.setObjectName(u"login")
         self.login.setGeometry(QRect(180, 150, 75, 23))
@@ -66,7 +71,7 @@ class Ui_LoginForm(object):
     # setupUi
 
     def retranslateUi(self, LoginForm):
-        LoginForm.setWindowTitle(QCoreApplication.translate("LoginForm", u"Form", None))
+        LoginForm.setWindowTitle(QCoreApplication.translate("LoginForm", u"UC Order Management System", None))
         self.login.setText(QCoreApplication.translate("LoginForm", u"Login", None))
         self.exit.setText(QCoreApplication.translate("LoginForm", u"Exit", None))
         self.label.setText(QCoreApplication.translate("LoginForm", u"Ultimate Controls, LLC. \n"
