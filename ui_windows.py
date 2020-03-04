@@ -13,7 +13,7 @@ from DateTimeEditDialog import Ui_DateTimeEditDialog
 
 from db_interface import (
     db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders, query_insertIntoTimeLog,
-    query_deleteTimeLogByLogID, query_updateTimeLogClockOut
+    query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField
 )
 
 # Sales Order Entry Verification Dialog
@@ -137,34 +137,51 @@ class TimeLogDialog(QDialog):
     def edit(self):
         # row_index = self.ui.tableView.selectionModel().currentIndex().row()
         column_index = self.ui.tableView.selectionModel().currentIndex().column()
+        log_id = self.getSelectedTableDataByColumn(0)
         # index = self.ui.tableView.model().index(row_index, column_index)
         # item_data = self.ui.tableView.model().itemData(index)
         # data = item_data.get(0)
         header = self.table_headers[column_index]
-        if header == "Log ID":
-            print('Cannot edit Log ID')
-        elif header == "SO Number":
-            text, okPressed = QInputDialog.getText(self, "Edit SO Number", "SO Number:")
-            if okPressed:
-                so_number = text
-                print(so_number)
-        elif header == "Clock In":
-            dialog = DateTimeEditDialog('Edit Clock In', 'Clock In Time:')
-            dateTime, okPressed = dialog.getDateTime()
-            if okPressed:
-                clockin_ts = dateTime.toPython()
-                print(clockin_ts)
-        elif header == "Clock Out":
-            dialog = DateTimeEditDialog('Edit Clock Out', 'Clock Out Time:')
-            dateTime, okPressed = dialog.getDateTime()
-            if okPressed:
-                clockout_ts = dateTime.toPython()
-                print(clockout_ts)
-        elif header == "Activity":
-            text, okPressed = QInputDialog.getText(self, "Edit Activity", "Activity:")
-            if okPressed:
-                activity = text
-                print(activity)
+        if not (log_id == None):
+            if header == "Log ID":
+                print('Cannot edit Log ID')
+            elif header == "SO Number":
+                text, okPressed = QInputDialog.getText(self, "Edit SO Number", "SO Number:")
+                if okPressed:
+                    so_number = text
+                    print(so_number)
+                    field = 'so_number'
+                    db_connection = db_connect()
+                    query_updateTimeLogSingleField(db_connection, log_id, field, so_number)
+                    self.refreshTable()
+            elif header == "Clock In":
+                dialog = DateTimeEditDialog('Edit Clock In', 'Clock In Time:')
+                dateTime, okPressed = dialog.getDateTime()
+                if okPressed:
+                    clockin_ts = dateTime.toPython()
+                    print(clockin_ts)
+                    field = 'clockin_ts'
+                    query_updateTimeLogSingleField(db_connection, log_id, field, clockin_ts)
+                    self.refreshTable()
+            elif header == "Clock Out":
+                dialog = DateTimeEditDialog('Edit Clock Out', 'Clock Out Time:')
+                dateTime, okPressed = dialog.getDateTime()
+                if okPressed:
+                    clockout_ts = dateTime.toPython()
+                    print(clockout_ts)
+                    field = 'clockout_ts'
+                    db_connection = db_connect()
+                    query_updateTimeLogSingleField(db_connection, log_id, field, clockout_ts)
+                    self.refreshTable()
+            elif header == "Activity":
+                text, okPressed = QInputDialog.getText(self, "Edit Activity", "Activity:")
+                if okPressed:
+                    activity = text
+                    print(activity)
+                    field = 'activity'
+                    db_connection = db_connect()
+                    query_updateTimeLogSingleField(db_connection, log_id, field, activity)
+                    self.refreshTable()
 
     def exit(self):
         self.close()
