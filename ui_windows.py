@@ -35,7 +35,6 @@ class SalesOrderEntryForm(QDialog):
         self.ui.submit.clicked.connect(self.submit)
         self.ui.cancel.clicked.connect(self.cancel)
 
-
     def submit(self):
         description = self.ui.description.text()
         customer = self.ui.customer.text()
@@ -63,7 +62,6 @@ class SalesOrderEntryForm(QDialog):
             self.close()
 
     def cancel(self):
-        print('Cancel')
         self.close()
 
 # Open Sales Orders Dialog
@@ -152,7 +150,6 @@ class TimeLogDialog(QDialog):
         self.table_data = data
         self.table_headers = headers
 
-
     def populateTable(self, data_list, header):
         table_model = MyTableModel(self, data_list, header)
         self.ui.tableView.setModel(table_model)
@@ -166,7 +163,6 @@ class TimeLogDialog(QDialog):
         index = self.ui.tableView.model().index(row_index, column_index)
         item_data = self.ui.tableView.model().itemData(index)
         return item_data.get(0)
-
 
 # Table Model Definition
 class MyTableModel(QAbstractTableModel):
