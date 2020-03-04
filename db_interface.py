@@ -269,26 +269,27 @@ def translateResults(results, fields):
     row = results[i]
     row = list(row)
     for j in range(len(row)):
-      field = fields[j]
-      # Translate time stamps
-      if ((field == 'entered_ts') or (field == 'clockin_ts') or (field == 'clockout_ts')):
-        row[j] = row[j].strftime("%m/%d/%Y, %H:%M:%S")
-      # Translate dates
-      elif ((field == 'order_date') or (field == 'due_date') or (field == 'invoice_date') or (field == 'paid_date')):
-        row[j] = row[j].strftime("%m/%d/%Y")
-      # Translate booleans
-      elif ((field == 'completed') or (field == 'invoiced') or (field == 'paid_full') or (field == 'closed')):
-        if row[j] == 1:
-          row[j] = 'Yes'
+      if (not (row[j] == None)):
+        field = fields[j]
+        # Translate time stamps
+        if ((field == 'entered_ts') or (field == 'clockin_ts') or (field == 'clockout_ts')):
+          row[j] = row[j].strftime("%m/%d/%Y, %H:%M:%S")
+        # Translate dates
+        elif ((field == 'order_date') or (field == 'due_date') or (field == 'invoice_date') or (field == 'paid_date')):
+          row[j] = row[j].strftime("%m/%d/%Y")
+        # Translate booleans
+        elif ((field == 'completed') or (field == 'invoiced') or (field == 'paid_full') or (field == 'closed')):
+          if row[j] == 1:
+            row[j] = 'Yes'
+          else:
+            row[j] = 'No'
+        # Translate dollar amounts
+        elif ((field == 'invoice_amount') or (field == 'paid_amount')):
+          if not (row[j] == None):
+            row[j] = '${:,.2f}'.format(row[j])
+        # If translation not defined, pass original value
         else:
-          row[j] = 'No'
-      # Translate dollar amounts
-      elif ((field == 'invoice_amount') or (field == 'paid_amount')):
-        if not (row[j] == None):
-          row[j] = '${:,.2f}'.format(row[j])
-      # If translation not defined, pass original value
-      else:
-        row[j] = row[j]
+          row[j] = row[j]
     row = tuple(row)
     results[i] = row
   return results
