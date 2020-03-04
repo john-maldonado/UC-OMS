@@ -127,7 +127,6 @@ class TimeLogDialog(QDialog):
         msg_box_text = "Sales Order: {}<br>Total Time: {} hrs".format(self.sales_order, total_time)
         QMessageBox.information(self, 'Total Time', msg_box_text, QMessageBox.Ok)
 
-
     def delete(self):
         log_id = self.getSelectedTableDataByColumn(0)
         so_number = self.getSelectedTableDataByColumn(1)
