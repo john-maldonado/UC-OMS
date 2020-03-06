@@ -292,14 +292,50 @@ def translateResults(results, fields):
     results[i] = row
   return results
 
-def prettyHeaders(fields):
-  for i in range(len(fields)):
-    field = fields[i]
-    all_fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced','invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed', 'log_id', 'clockin_ts', 'clockout_ts', 'activity']
-    all_pretty_headers = ['SO ID', 'Time Stamp', 'SO Number', 'Description', 'Customer', 'Order Date', 'Due Date', 'Quote Number', 'Customer PO', 'Completed Date', 'Completed', 'Invoiced', 'Invoice No', 'Invoice Date', 'Invoice Amount', 'Paid In Full', 'Paid Date', 'Paid Amount', 'Closed', 'Log ID', 'Clock In', 'Clock Out', 'Activity']
-    if field in all_fields:
-      index = all_fields.index(field)
-      fields[i] = all_pretty_headers[index]
-    else:
-      fields[i] = field
-  return fields
+class fieldsDictionary(object):
+    def __init__(self):
+        self.forward_dict = {
+            'so_id': 'SO ID',
+            'entered_ts': 'Time Stamp',
+            'so_number': 'SO Number',
+            'description': 'Description',
+            'customer': 'Customer',
+            'order_date': 'Order Date',
+            'due_date': 'Due Date',
+            'quote_number': 'Quote Number',
+            'customer_po': 'Customer PO',
+            'completed_date': 'Completed Date',
+            'completed': 'Completed',
+            'invoiced': 'Invoiced',
+            'invoice_number': 'Invoice No',
+            'invoice_date': 'Invoice Date',
+            'invoice_amount': 'Invoice Amount',
+            'paid_full': 'Paid In Full',
+            'paid_date': 'Paid Date',
+            'paid_amount': 'Paid Amount',
+            'closed': 'Closed',
+            'log_id': 'Log ID',
+            'clockin_ts': 'Clock In',
+            'clockout_ts': 'Clock Out',
+            'activity': 'Activity'
+            }
+        self.reverse_dict = self.reverseDict(self.forward_dict)
+    
+    def reverseDict(self, forward_dict):
+        return dict(zip(forward_dict.values(), forward_dict.keys()))
+
+    def fieldToHeader(self, field):
+        return self.forward_dict.get(field)
+    
+    def headerToField(self, header):
+        return self.reverse_dict.get(header)
+        
+def prettyHeaders(fields_input: list):
+  fields_dict = fieldsDictionary()
+  headers = []
+  for x in fields_input:
+      if x in fields_dict.forward_dict:
+          headers.append(fields_dict.fieldToHeader(x))
+      else:
+          headers.append(x)
+  return headers
