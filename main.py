@@ -8,7 +8,7 @@ from PySide2.QtCore import QFile, QDate
 from LoginSystem import LoginInterface
 from LoginForm import Ui_LoginForm
 from MainMenu import Ui_MainMenu
-from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog, TimeLogDialog
+from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog, TimeLogDialog, SOSearchDialog
 
 from db_interface import (
     db_connect, query_allopen, translateResults, prettyHeaders
@@ -66,10 +66,15 @@ class MainMenu(QWidget):
         self.ui.logout.clicked.connect(self.logout)
         self.ui.viewOpenOrders.clicked.connect(self.reviewOpenSalesOrders)
         self.ui.timeLog.clicked.connect(self.timeLog)
+        self.ui.salesOrderSearch.clicked.connect(self.soSearch)
         self.action = 'none'
 
     def timeLog(self):
         dialog = TimeLogDialog()
+        dialog.exec_()
+
+    def soSearch(self):
+        dialog = SOSearchDialog()
         dialog.exec_()
 
     def logout(self):

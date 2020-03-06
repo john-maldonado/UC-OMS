@@ -1,7 +1,7 @@
 import operator
 
 # pylint: disable=no-name-in-module
-from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog, QInputDialog
+from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog, QInputDialog, QComboBox
 from PySide2.QtCore import Qt, QFile, QDate, QAbstractTableModel, SIGNAL
 # pylint: enable=no-name-in-module
 
@@ -10,6 +10,7 @@ from SalesOrderEntryVerifyDialog import Ui_SalesOrderEntryVerifyDialog
 from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
 from TimeLogDialog import Ui_TimeLogDialog
 from DateTimeEditDialog import Ui_DateTimeEditDialog
+from SOSearchDialog import Ui_SOSearchDialog
 
 from db_interface import (
     db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders, query_insertIntoTimeLog,
@@ -64,6 +65,66 @@ class SalesOrderEntryForm(QDialog):
 
     def cancel(self):
         self.close()
+
+# SO Search Dialog
+class SOSearchDialog(QDialog):
+    def __init__(self):
+        super(SOSearchDialog, self).__init__()
+        self.ui = Ui_SOSearchDialog()
+        self.ui.setupUi(self)
+        self.ui.dateInput1.setVisible(False)
+        self.ui.dateInput2.setVisible(False)
+        self.ui.dateInput1.setDate(QDate.currentDate())
+        self.ui.dateInput2.setDate(QDate.currentDate())
+        self.search_fields = ['so_number', 'customer', 'so_id', 'order_date', 'due_date']
+        headers = prettyHeaders(self.search_fields)
+        self.ui.field1.addItems(headers)
+        self.ui.field2.addItems(headers)
+        self.join_operators = ['NONE', 'AND', 'OR', 'TO']
+        self.ui.joinOperator.addItems(self.join_operators)
+        self.ui.field2.setDisabled(True)
+        self.ui.textInput2.setDisabled(True)
+        self.ui.close.clicked.connect(self.close)
+        self.ui.joinOperator.activated.connect(self.disable2ndField)
+        self.ui.field1.activated.connect(self.controlField1Visibility)
+        self.ui.field2.activated.connect(self.controlField2Visibility)
+
+    def controlField1Visibility(self):
+        index = self.ui.field1.currentIndex()
+        field = self.search_fields[index]
+        print(field)
+        if (field == 'order_date') or (field == 'due_date'):
+            self.ui.textInput1.setVisible(False)
+            self.ui.dateInput1.setVisible(True)
+            print('ping')
+        else:
+            self.ui.textInput1.setVisible(True)
+            self.ui.dateInput1.setVisible(False)
+            print('pong')
+
+    def controlField2Visibility(self):
+        index = self.ui.field2.currentIndex()
+        field = self.search_fields[index]
+        if (field == 'order_date') or (field == 'due_date'):
+            self.ui.textInput2.setVisible(False)
+            self.ui.dateInput2.setVisible(True)
+            print('ping')
+        else:
+            self.ui.textInput2.setVisible(True)
+            self.ui.dateInput2.setVisible(False)
+            print('pong')
+
+    def disable2ndField(self):
+        index = self.ui.joinOperator.currentIndex()
+        if index == 0:
+            self.ui.textInput2.setDisabled(True)
+            self.ui.field2.setDisabled(True)
+            self.ui.dateInput2.setDisabled(True)
+        else:
+            self.ui.textInput2.setDisabled(False)
+            self.ui.field2.setDisabled(False)
+            self.ui.dateInput2.setDisabled(False)
+
 
 # Open Sales Orders Dialog
 class OpenSalesOrderDialog(QDialog):
