@@ -3,6 +3,7 @@ import select
 import secrets
 import json
 from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions
+import db_interface
 
 users_dict = {
     'foo' : 'bar',
@@ -126,7 +127,9 @@ while True:
                     if token in valid_tokens:
                         if user == valid_tokens[token]:
                             print('Processing query')
-                            results = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+                            db_connection = db_interface.db_connect()
+                            results = db_interface.query_allopen(db_connection)
+                            print(results)
                             results_string = json.dumps(results)
                             p.sendResults(notified_socket, results_string)
                         else:
