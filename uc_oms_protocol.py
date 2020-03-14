@@ -1,4 +1,5 @@
 import socket
+import json
 
 class PExceptions():
     invalid_token = 'INVAL_TOKEN'
@@ -23,30 +24,54 @@ class PCommands():
     sendResults = 'RESULT'
 
 class PMessage():
-    def __init__(self, command: str, args: str, user: str, token: str):
-        self.command = command
-        self.args = args
-        self.user = user
-        self.token = token
+    def __init__(self, command: str = None, args: str = None, user: str = None, token: str = None):
+        if not (command is None):
+            self.command = command
+        else:
+            self.command = ''
+        if not (args is None):
+            self.args = args
+        else:
+            self.args = ''
+        if not (user is None):
+            self.user = user
+        else:
+            self.token = ''
+        if not (command is None):
+            self.token = token
+        else:
+            self.token = ''
 
     def getElements(self):
         elements = [self.command, self.args, self.user, self.token]
         return elements
 
+    def toJSON(self):
+        message_list = [self.command, self.args, self.user, self.token]
+        message_json = json.dumps(message_list)
+        return message_json
+
+    def fromJSON(self, message_json: str):
+        message_list = json.loads(message_json)
+        self.command = message_list[0]
+        self.args = message_list[1]
+        self.user = message_list[2]
+        self.token = message_list[3]
+        return self
+
+class PObject():
+    class object_types():
+        sql_results = 'SQLRES'
+
+    def _init_(self, object_type: str, an_object : object, user: str, token: str):
+        self.object_type = object_type
+        self.object = an_object
+        self.user = user
+        self.token = token
+
 class Protocol(object):
     def __init__(self):
         self.main_header_length = 10
-        self.command_header_length = 2
-        self.args_header_length = 10
-        self.user_header_length = 2
-        self.token_header_length = 4
-
-        self.element_header_lengths = [
-            self.command_header_length,
-            self.args_header_length,
-            self.user_header_length,
-            self.token_header_length
-            ]
 
     def sendConnect(self, client_socket):
         command = PCommands.connect
@@ -106,25 +131,12 @@ class Protocol(object):
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
+    def sendObject(self, socket, object_type: str, an_object: object, user: str, token: str):
+        foo = 'bar'
+        return foo
+
     def buildPacket(self, message: PMessage):
-        message_elements = message.getElements()
-        encoded_element_headers = []
-        encoded_elements = []
-        for i in range(len(message_elements)):
-            encoded_element = message_elements[i].encode('utf-8')
-            encoded_elements.append(encoded_element)
-            encoded_element_header = self.buildHeader(encoded_elements[i], self.element_header_lengths[i])
-            encoded_element_headers.append(encoded_element_header)
-
-        encoded_message = ''.encode('utf-8')    
-        for element in encoded_elements:
-            encoded_message = encoded_message + element
-        
-        encoded_header = ''.encode('utf-8')
-        for header in encoded_element_headers:
-            encoded_header = encoded_header + header
-
-        payload = encoded_header + encoded_message
+        payload = message.toJSON().encode('utf-8')
         main_header = self.buildHeader(payload, self.main_header_length)
         packet = main_header + payload
         return packet        
@@ -133,12 +145,12 @@ class Protocol(object):
         header = f"{len(data):<{header_length}}".encode('utf-8')
         return header
 
-    def receiveMessage(self, client_socket: socket.socket):
+    def receiveMessage(self, socket: socket.socket):
 
         try:
 
             # Receive our "header" containing message length, it's size is defined and constant
-            main_header = client_socket.recv(self.main_header_length)
+            main_header = socket.recv(self.main_header_length)
             
             # If we received no data, client gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
             if not len(main_header):
@@ -148,7 +160,7 @@ class Protocol(object):
                 message_length = int(main_header.decode('utf-8').strip())
 
                 # Recieve and return message
-                message_string = client_socket.recv(message_length).decode('utf-8')
+                message_string = socket.recv(message_length).decode('utf-8')
                 message = self.parseMessage(message_string)
                 return message
 
@@ -160,24 +172,6 @@ class Protocol(object):
             # and that's also a cause when we receive an empty message
             return False
 
-    def parseMessage(self, message: str):
-        elements_headers_length = sum(self.element_header_lengths)
-        elements_headers_string = message[0: elements_headers_length]
-        elements_string = message[elements_headers_length: len(message)]
-        element_lengths = []
-        current_position = 0
-        for element_header_length in self.element_header_lengths:
-            header = elements_headers_string[current_position : (current_position + element_header_length)]
-            header_length = int(header.strip())
-            element_lengths.append(header_length)
-            current_position = current_position + element_header_length
-
-        elements = []
-        current_position = 0
-        for element_length in element_lengths:
-            element = elements_string[current_position : (current_position + element_length)]
-            elements.append(element)
-            current_position = current_position + element_length
-
-        message = PMessage(elements[0], elements[1], elements[2], elements[3])
+    def parseMessage(self, message_json: str):
+        message = PMessage().fromJSON(message_json)
         return message
