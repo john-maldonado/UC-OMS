@@ -23,8 +23,8 @@ u = OMSUser(username, password)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect to a given ip and port
-IP = "127.0.0.1"
-PORT = 1234
+IP = "10.0.0.119"
+PORT = 4444
 client_socket.connect((IP, PORT))
 
 # Set connection to non-blocking state, so .recv() call won't block, just return some exception we'll handle
