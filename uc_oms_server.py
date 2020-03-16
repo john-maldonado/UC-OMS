@@ -1,9 +1,11 @@
+# Import Libraries
 import socket
 import select
 import secrets
 import json
 from passlib.context import CryptContext
 
+# Import UC OMS Libraries
 from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions, PObject
 from uc_oms_db_connections import loginDBConnect, ordersDBConnect
 from uc_oms_db_queries import (
@@ -11,23 +13,22 @@ from uc_oms_db_queries import (
     query_allopen
     )
 
-users_dict = {
-    'foo' : 'bar',
-    'John' : 'Password'
-}
-
-valid_tokens = {}
-
+# Set password encryption context
 pwd_context = CryptContext(
     schemes=["pbkdf2_sha256"],
     default="pbkdf2_sha256",
     pbkdf2_sha256__default_rounds=30000
     )
 
+# Create empty dictionary of valid tokens
+valid_tokens = {}
+
+# Create protocol instance
 p = Protocol()
+
+# Define listening address and port
 IP = "0.0.0.0"
 PORT = 4444
-
 # Create socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Sets REUSEADDR (as a socket option) to 1 on socket
@@ -110,14 +111,18 @@ while True:
                     user = message.user
                     password = message.args
                     print('Processing login for: {} Identified by: {}'.format(user, password))
+                    # Pull hashed password from DB
                     db_connection = loginDBConnect()
                     result = query_selectUsernameAndPasswordByUsername(db_connection, user)
                     authenticated = False
+                    # Check if 1 result is returned
                     if len(result) == 1:
                         password_result = result[0][1]
+                        # Check if password matches hashed password
                         if pwd_context.verify(password, password_result):
                             authenticated = True
                     if authenticated:
+                        # Send token to client
                         print('Password OK')
                         print('Sending token to client')
                         token = secrets.token_urlsafe()
@@ -147,8 +152,11 @@ while True:
                             results_bool = False
                             # Try query
                             try: 
+                                sql = message.args
                                 db_connection = ordersDBConnect()
-                                results = query_allopen(db_connection)
+                                mycursor = db_connection.cursor()
+                                mycursor.execute(sql)
+                                results = mycursor.fetchall()
                             except Exception as e:
                                 print(e)
                                 results = False
