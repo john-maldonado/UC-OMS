@@ -2,8 +2,14 @@ import socket
 import select
 import secrets
 import json
+from passlib.context import CryptContext
+
 from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions, PObject
-import db_interface
+from uc_oms_db_connections import loginDBConnect, ordersDBConnect
+from uc_oms_db_queries import (
+    query_selectUsernameAndPasswordByUsername, 
+    query_allopen
+    )
 
 users_dict = {
     'foo' : 'bar',
@@ -12,10 +18,13 @@ users_dict = {
 
 valid_tokens = {}
 
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256"],
+    default="pbkdf2_sha256",
+    pbkdf2_sha256__default_rounds=30000
+    )
+
 p = Protocol()
-
-HEADER_LENGTH = 10
-
 IP = "0.0.0.0"
 PORT = 4444
 
@@ -101,7 +110,14 @@ while True:
                     user = message.user
                     password = message.args
                     print('Processing login for: {} Identified by: {}'.format(user, password))
-                    if password == users_dict[user]:
+                    db_connection = loginDBConnect()
+                    result = query_selectUsernameAndPasswordByUsername(db_connection, user)
+                    authenticated = False
+                    if len(result) == 1:
+                        password_result = result[0][1]
+                        if pwd_context.verify(password, password_result):
+                            authenticated = True
+                    if authenticated:
                         print('Password OK')
                         print('Sending token to client')
                         token = secrets.token_urlsafe()
@@ -131,8 +147,8 @@ while True:
                             results_bool = False
                             # Try query
                             try: 
-                                db_connection = db_interface.db_connect()
-                                results = db_interface.query_allopen(db_connection)
+                                db_connection = ordersDBConnect()
+                                results = query_allopen(db_connection)
                             except Exception as e:
                                 print(e)
                                 results = False
