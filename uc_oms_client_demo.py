@@ -3,7 +3,7 @@ import select
 import errno
 import sys
 import json
-from uc_oms_protocol import Protocol, PCommands, PExceptions
+from uc_oms_protocol import Protocol, PCommands, PExceptions, PObject
 
 class OMSUser():
     def __init__(self, username: str, password: str):
@@ -85,9 +85,15 @@ else:
             message = p.receiveMessage(client_socket)
             client_socket.setblocking(False)
             if message.command == PCommands.sendResults:
-                results = json.loads(message.args)
-                results = [tuple(i) for i in results]
-                print(results)
+                results_bool = json.loads(message.args)
+                if results_bool:
+                    client_socket.setblocking(True)
+                    results_PObject = p.receivePObject(client_socket)
+                    client_socket.setblocking(False)
+                    print(results_PObject.object_type)
+                    print(results_PObject.object)
+                else:
+                    print('Recieved FALSE response')
             elif message.command == PCommands.exception:
                 exception = message.args
                 print(PExceptions.exceptions_desc_dict[exception])

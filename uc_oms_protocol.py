@@ -1,5 +1,6 @@
 import socket
 import json
+import pickle
 
 class PExceptions():
     invalid_token = 'INVAL_TOKEN'
@@ -61,13 +62,11 @@ class PMessage():
 
 class PObject():
     class object_types():
-        sql_results = 'SQLRES'
+        sql_results = 'SQL_RES'
 
-    def _init_(self, object_type: str, an_object : object, user: str, token: str):
+    def __init__(self, object_type: str = None, an_object = None):
         self.object_type = object_type
         self.object = an_object
-        self.user = user
-        self.token = token
 
 class Protocol(object):
     def __init__(self):
@@ -113,6 +112,38 @@ class Protocol(object):
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
+    def sendPObject(self, client_socket, A_PObject: PObject):
+        pickled_PObject = pickle.dumps(A_PObject)
+        main_header = self.buildHeader(pickled_PObject, self.main_header_length)
+        packet = main_header + pickled_PObject
+        client_socket.send(packet)
+
+    def receivePObject(self, socket):
+        try:
+
+            # Receive our "header" containing message length, it's size is defined and constant
+            main_header = socket.recv(self.main_header_length)
+            
+            # If we received no data, client gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
+            if not len(main_header):
+                return False
+            else:
+                # Convert header to int value
+                PObject_length = int(main_header.decode('utf-8').strip())
+
+                # Recieve and return object
+                pickled_PObject = socket.recv(PObject_length)
+                the_PObject = pickle.loads(pickled_PObject)
+                return the_PObject
+
+        except:
+
+            # If we are here, client closed connection violently, for example by pressing ctrl+c on his script
+            # or just lost his connection
+            # socket.close() also invokes socket.shutdown(socket.SHUT_RDWR) what sends information about closing the socket (shutdown read/write)
+            # and that's also a cause when we receive an empty message
+            return False
+
     def sendResults(self, client_socket, results_json: str):
         command = PCommands.sendResults
         args = results_json
@@ -130,10 +161,6 @@ class Protocol(object):
         message = PMessage(command, args, user, token)
         packet = self.buildPacket(message)
         client_socket.send(packet)
-
-    def sendObject(self, socket, object_type: str, an_object: object, user: str, token: str):
-        foo = 'bar'
-        return foo
 
     def buildPacket(self, message: PMessage):
         payload = message.toJSON().encode('utf-8')
