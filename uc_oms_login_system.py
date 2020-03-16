@@ -1,5 +1,6 @@
 from passlib.context import CryptContext
 import secrets
+from uc_oms_db_connections import loginDBConnect
 
 class OMSUser():
     def __init__(self, username: str, password: str):
@@ -17,37 +18,6 @@ def assembleSQLFields(fields): # Translates fields list to sql string
         stingFormat = "{}, {}"
         fieldsString = stingFormat.format(fieldsString,x)
   return fieldsString
-
-def query_selectUserByUsername(db_connection, user): # Gets user_id of username
-    table = 'uc_users'
-    field = 'user_id'
-    condition = "username='{}'".format(user)
-    sql = "SELECT {} FROM {} WHERE {}".format(field, table, condition)
-    mycursor = db_connection.cursor()
-    mycursor.execute(sql)
-    myresult = mycursor.fetchall()
-    return myresult
-
-def query_selectUsernameAndPasswordByUsername(db_connection, user): # Gets username and password of username
-    table = 'uc_users'
-    fields = ['username','password']
-    fields = assembleSQLFields(fields)
-    condition = "username='{}'".format(user)
-    sql = "SELECT {} FROM {} WHERE {}".format(fields, table, condition)
-    mycursor = db_connection.cursor()
-    mycursor.execute(sql)
-    myresult = mycursor.fetchall()
-    return myresult
-
-def query_insertNewUser(db_connection, user, hashed): # Inserts new entry into uc_users
-    table = 'uc_users'
-    fields = ['username','password']
-    fields = assembleSQLFields(fields)
-    values = "'{}','{}'".format(user, hashed)
-    sql = "INSERT INTO {} ({}) VALUES ({})".format(table, fields, values)
-    mycursor = db_connection.cursor()
-    mycursor.execute(sql)
-    db_connection.commit()
 
 class LoginInterface(object): # Creates login interface object
     def __init__(self): # Defines variables when instantiated
