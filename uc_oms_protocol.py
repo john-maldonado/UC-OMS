@@ -114,6 +114,8 @@ class Protocol(object):
 
     def sendPObject(self, client_socket, A_PObject: PObject):
         pickled_PObject = pickle.dumps(A_PObject)
+        print('Sent Pickled Object:')
+        print(pickled_PObject)
         main_header = self.buildHeader(pickled_PObject, self.main_header_length)
         packet = main_header + pickled_PObject
         client_socket.send(packet)
@@ -135,6 +137,8 @@ class Protocol(object):
 
                 # Recieve and return object
                 pickled_PObject = socket.recv(PObject_length)
+                print('Recieved Pickled Object:')
+                print(pickled_PObject)
                 the_PObject = pickle.loads(pickled_PObject)
                 return the_PObject
 
