@@ -123,6 +123,7 @@ class Protocol(object):
 
             # Receive our "header" containing message length, it's size is defined and constant
             main_header = socket.recv(self.main_header_length)
+            print(main_header.decode('utf-8'))
             
             # If we received no data, client gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
             if not len(main_header):
@@ -130,18 +131,20 @@ class Protocol(object):
             else:
                 # Convert header to int value
                 PObject_length = int(main_header.decode('utf-8').strip())
+                print(PObject_length)
 
                 # Recieve and return object
                 pickled_PObject = socket.recv(PObject_length)
                 the_PObject = pickle.loads(pickled_PObject)
                 return the_PObject
 
-        except:
+        except Exception as e:
 
             # If we are here, client closed connection violently, for example by pressing ctrl+c on his script
             # or just lost his connection
             # socket.close() also invokes socket.shutdown(socket.SHUT_RDWR) what sends information about closing the socket (shutdown read/write)
             # and that's also a cause when we receive an empty message
+            print(e)
             return False
 
     def sendResults(self, client_socket, results_json: str):
@@ -169,7 +172,9 @@ class Protocol(object):
         return packet        
 
     def buildHeader(self, data: bytes, header_length: int):
+        print(len(data))
         header = f"{len(data):<{header_length}}".encode('utf-8')
+        print(header.decode('utf-8'))
         return header
 
     def receiveMessage(self, socket: socket.socket):
