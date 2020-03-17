@@ -157,7 +157,6 @@ while True:
                                 mycursor = db_connection.cursor()
                                 mycursor.execute(sql)
                                 results = mycursor.fetchall()
-                                print(results)
                             except Exception as e:
                                 print(e)
                                 results = False
