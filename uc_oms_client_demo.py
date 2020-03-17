@@ -90,6 +90,7 @@ else:
                     client_socket.setblocking(True)
                     results_PObject = p.receivePObject(client_socket)
                     client_socket.setblocking(False)
+                    print(results_PObject)
                     print(results_PObject.object_type)
                     print(results_PObject.object)
                 else:
