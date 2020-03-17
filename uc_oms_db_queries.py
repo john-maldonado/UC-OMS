@@ -1,16 +1,16 @@
 import time
 import datetime
+import json
+from uc_oms_protocol import Protocol, PCommands, PExceptions
 
-def query_basic(db_connection):
+def query_basic(client_socket, user):
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'closed']
   fieldsString = assembleSQLFields(fields)
   sql = "SELECT {} FROM {}"
   sql = sql.format(fieldsString, table)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult, fields
+  results, PException = requestQuery(client_socket, user, sql)
+  return results, fields, PException
 
 def query_all(db_connection):
   table = "sales_orders"
@@ -340,3 +340,27 @@ def prettyHeaders(fields_input: list):
       else:
           headers.append(x)
   return headers
+
+def requestQuery(client_socket, user, query_string):
+  p = Protocol()
+  p.sendQuery(client_socket, user, query_string)
+  client_socket.setblocking(True)
+  message = p.receiveMessage(client_socket)
+  client_socket.setblocking(False)
+  if message.command == PCommands.sendResults:
+      results_bool = json.loads(message.args)
+      if results_bool:
+          client_socket.setblocking(True)
+          results_PObject = p.receivePObject(client_socket)
+          client_socket.setblocking(False)
+          results = results_PObject.object
+          exception = False
+          return results, exception
+      else:
+          results = False
+          exception = False
+          return results, exception
+  elif message.command == PCommands.exception:
+      results = False
+      exception = message.args
+      return results, exception

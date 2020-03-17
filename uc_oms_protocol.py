@@ -2,6 +2,13 @@ import socket
 import json
 import pickle
 
+class OMSUser():
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
+        self.token = ''
+        self.authenticated = False
+
 class PExceptions():
     invalid_token = 'INVAL_TOKEN'
     invalid_credentials = 'INVAL_CRED'
@@ -81,19 +88,19 @@ class Protocol(object):
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
-    def sendLogin(self, client_socket, username: str, password: str):
+    def sendLogin(self, client_socket, user: OMSUser):
         command = PCommands.login
-        args = password
-        user = username
+        args = user.password
+        user = user.username
         token = ''
         message = PMessage(command, args, user, token)
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
-    def sendLogout(self, client_socket, user: str, token: str):
+    def sendLogout(self, client_socket, user: OMSUser):
         command = PCommands.logout
         args = ''
-        message = PMessage(command, args, user, token)
+        message = PMessage(command, args, user.username, user.token)
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
@@ -105,10 +112,10 @@ class Protocol(object):
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
-    def sendQuery(self, client_socket, user: str, token: str, query_string: str):
+    def sendQuery(self, client_socket, user: OMSUser, query_string: str):
         command = PCommands.query
         args = query_string
-        message = PMessage(command, args, user, token)
+        message = PMessage(command, args, user.username, user.token)
         packet = self.buildPacket(message)
         client_socket.send(packet)
 

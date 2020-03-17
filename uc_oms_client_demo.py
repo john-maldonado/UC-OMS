@@ -3,14 +3,9 @@ import select
 import errno
 import sys
 import json
-from uc_oms_protocol import Protocol, PCommands, PExceptions, PObject
-
-class OMSUser():
-    def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
-        self.token = ''
-        self.authenticated = False
+from uc_oms_protocol import Protocol, PCommands, PExceptions, PObject, OMSUser
+from uc_oms_db_queries import query_basic
+import tabulate
 
 username = input('Username: ')
 password = input('Password: ')
@@ -55,7 +50,7 @@ else:
         elif selection == 1:
             if not u.authenticated:
                 print('Requesting login')
-                p.sendLogin(client_socket, u.username, u.password)
+                p.sendLogin(client_socket, u)
                 client_socket.setblocking(True)
                 message = p.receiveMessage(client_socket)
                 client_socket.setblocking(False)
@@ -69,7 +64,7 @@ else:
                 print('Already logged in')
         elif selection == 2:
             print('Requesting logout')
-            p.sendLogout(client_socket, u.username, u.token)
+            p.sendLogout(client_socket, u)
             client_socket.setblocking(True)
             message = p.receiveMessage(client_socket)
             client_socket.setblocking(False)
@@ -80,23 +75,11 @@ else:
         elif selection == 3:
             print('Requesting query')
             query_string = input('Enter SQL Query: ')
-            p.sendQuery(client_socket, u.username, u.token, query_string)
-            client_socket.setblocking(True)
-            message = p.receiveMessage(client_socket)
-            client_socket.setblocking(False)
-            if message.command == PCommands.sendResults:
-                results_bool = json.loads(message.args)
-                if results_bool:
-                    client_socket.setblocking(True)
-                    results_PObject = p.receivePObject(client_socket)
-                    client_socket.setblocking(False)
-                    print(results_PObject)
-                    print(results_PObject.object_type)
-                    print(results_PObject.object)
-                else:
-                    print('Recieved FALSE response')
-            elif message.command == PCommands.exception:
-                exception = message.args
-                print(PExceptions.exceptions_desc_dict[exception])
+            results, fields, exception = query_basic(client_socket, u)
+            if not (results is False):
+                print(tabulate.tabulate(results, fields, 'psql'))
+            else:
+                print(PExceptions().exceptions_desc_dict[exception])
+
         else:
             print('Invalid selection')
