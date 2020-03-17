@@ -114,18 +114,15 @@ class Protocol(object):
 
     def sendPObject(self, client_socket, A_PObject: PObject):
         pickled_PObject = pickle.dumps(A_PObject)
-        print('Sent Pickled Object:')
-        print(pickled_PObject)
         main_header = self.buildHeader(pickled_PObject, self.main_header_length)
         packet = main_header + pickled_PObject
         client_socket.send(packet)
 
-    def receivePObject(self, socket):
+    def receivePObject(self, client_socket):
         try:
 
             # Receive our "header" containing message length, it's size is defined and constant
-            main_header = socket.recv(self.main_header_length)
-            print(main_header.decode('utf-8'))
+            main_header = client_socket.recv(self.main_header_length)
             
             # If we received no data, client gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
             if not len(main_header):
@@ -133,22 +130,18 @@ class Protocol(object):
             else:
                 # Convert header to int value
                 PObject_length = int(main_header.decode('utf-8').strip())
-                print(PObject_length)
 
                 # Recieve and return object
-                pickled_PObject = socket.recv(PObject_length)
-                print('Recieved Pickled Object:')
-                print(pickled_PObject)
+                pickled_PObject = self.receiveAllBytes(client_socket, PObject_length)
                 the_PObject = pickle.loads(pickled_PObject)
                 return the_PObject
 
-        except Exception as e:
+        except:
 
             # If we are here, client closed connection violently, for example by pressing ctrl+c on his script
             # or just lost his connection
             # socket.close() also invokes socket.shutdown(socket.SHUT_RDWR) what sends information about closing the socket (shutdown read/write)
             # and that's also a cause when we receive an empty message
-            print(e)
             return False
 
     def sendResults(self, client_socket, results_json: str):
@@ -176,17 +169,15 @@ class Protocol(object):
         return packet        
 
     def buildHeader(self, data: bytes, header_length: int):
-        print(len(data))
         header = f"{len(data):<{header_length}}".encode('utf-8')
-        print(header.decode('utf-8'))
         return header
 
-    def receiveMessage(self, socket: socket.socket):
+    def receiveMessage(self, client_socket: socket.socket):
 
         try:
 
             # Receive our "header" containing message length, it's size is defined and constant
-            main_header = socket.recv(self.main_header_length)
+            main_header = client_socket.recv(self.main_header_length)
             
             # If we received no data, client gracefully closed a connection, for example using socket.close() or socket.shutdown(socket.SHUT_RDWR)
             if not len(main_header):
@@ -196,7 +187,7 @@ class Protocol(object):
                 message_length = int(main_header.decode('utf-8').strip())
 
                 # Recieve and return message
-                message_string = socket.recv(message_length).decode('utf-8')
+                message_string = self.receiveAllBytes(client_socket, message_length)
                 message = self.parseMessage(message_string)
                 return message
 
@@ -207,6 +198,15 @@ class Protocol(object):
             # socket.close() also invokes socket.shutdown(socket.SHUT_RDWR) what sends information about closing the socket (shutdown read/write)
             # and that's also a cause when we receive an empty message
             return False
+
+    def receiveAllBytes(self, client_socket: socket.socket, length: int):
+        the_bytes = bytes()
+        while True:
+            remaining_length = length - len(the_bytes)
+            chunk = client_socket.recv(remaining_length)
+            the_bytes = the_bytes + chunk
+            if len(the_bytes) == length:
+                return the_bytes
 
     def parseMessage(self, message_json: str):
         message = PMessage().fromJSON(message_json)
