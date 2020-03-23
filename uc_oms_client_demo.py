@@ -4,7 +4,7 @@ import errno
 import sys
 import json
 from uc_oms_protocol import Protocol, PCommands, PExceptions, PObject, OMSUser
-from uc_oms_db_queries import query_basic
+from uc_oms_db_queries import query_selectBasic
 import tabulate
 
 username = input('Username: ')
@@ -75,7 +75,7 @@ else:
         elif selection == 3:
             print('Requesting query')
             query_string = input('Enter SQL Query: ')
-            results, fields, exception = query_basic(client_socket, u)
+            results, fields, exception = query_selectBasic(client_socket, u)
             if not (results is False):
                 print(tabulate.tabulate(results, fields, 'psql'))
             else:

@@ -10,7 +10,7 @@ from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions, PObject,
 from uc_oms_db_connections import loginDBConnect, ordersDBConnect
 from uc_oms_db_queries import (
     query_selectUsernameAndPasswordByUsername, 
-    query_allopen
+    query_selectAllOpen
     )
 
 # Set password encryption context

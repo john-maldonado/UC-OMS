@@ -3,7 +3,7 @@ import datetime
 import json
 from uc_oms_protocol import Protocol, PCommands, PExceptions
 
-def query_basic(client_socket, user):
+def query_selectBasic(client_socket, user):
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'closed']
   fieldsString = assembleSQLFields(fields)
@@ -12,7 +12,7 @@ def query_basic(client_socket, user):
   results, PException = requestSelectQuery(client_socket, user, sql)
   return results, fields, PException
 
-def query_all(db_connection):
+def query_selectAll(db_connection):
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
   fieldsString = assembleSQLFields(fields)
@@ -23,7 +23,7 @@ def query_all(db_connection):
   myresult = mycursor.fetchall()
   return myresult, fields
 
-def query_allopen(db_connection):
+def query_selectAllOpen(db_connection):
   table = "sales_orders"
   fields = ['so_id', 'so_number', 'description', 'customer', 'order_date','due_date', 'completed', 'invoiced', 'invoice_amount', 'paid_amount', 'paid_full']
   fieldsString = assembleSQLFields(fields)
@@ -49,7 +49,7 @@ def query_insertIntoTimeLog(db_connection, SalesOrder):
   mycursor.execute(sql)
   db_connection.commit()
 
-def query_timeLogBySO(db_connection, SalesOrder):
+def query_selectTimeLogBySO(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
@@ -73,7 +73,7 @@ def query_updateTimeLogClockOut(db_connection, logID, activity):
   mycursor.execute(sql)
   db_connection.commit()
 
-def query_timeLogTotalTimeBySO(db_connection, SalesOrder):
+def query_selectTimeLogTotalTimeBySO(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
@@ -93,7 +93,7 @@ def query_timeLogTotalTimeBySO(db_connection, SalesOrder):
   totalTimeHours = round((totalTimeSeconds/60)/60,2)
   return totalTimeHours
 
-def query_timeLogByLogID(db_connection, logID):
+def query_selectTimeLogByLogID(db_connection, logID):
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
   fieldsString = assembleSQLFields(fields)
@@ -116,7 +116,7 @@ def query_deleteTimeLogByLogID(db_connection, logID):
   mycursor.execute(sql)
   db_connection.commit()
 
-def query_salesOrderBySONumber(db_connection, SalesOrder):
+def query_selectSalesOrderBySONumber(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
@@ -130,7 +130,7 @@ def query_salesOrderBySONumber(db_connection, SalesOrder):
   myresult = mycursor.fetchall()
   return myresult, fields
 
-def query_salesOrderBySONumberShort(db_connection, SalesOrder):
+def query_selectSalesOrderBySONumberShort(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "sales_orders"
   fields = ['so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
@@ -144,7 +144,7 @@ def query_salesOrderBySONumberShort(db_connection, SalesOrder):
   myresult = mycursor.fetchall()
   return myresult, fields
 
-def query_salesOrderByCustomer(db_connection, Customer):
+def query_selectSalesOrderByCustomer(db_connection, Customer):
   CustomerString = "{}".format(Customer)
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
@@ -158,7 +158,7 @@ def query_salesOrderByCustomer(db_connection, Customer):
   myresult = mycursor.fetchall()
   return myresult, fields
 
-def query_maxSalesOrder(db_connection):
+def query_selectMaxSalesOrder(db_connection):
   table = "sales_orders"
   field = "so_number"
   sql = "SELECT MAX({}) FROM {}"
