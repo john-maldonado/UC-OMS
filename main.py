@@ -60,7 +60,7 @@ class LoginForm(QWidget):
     def login(self):
         u.username = self.ui.username.text()
         u.password = self.ui.password.text()
-        p.sendLogin(s, u.username, u.password)
+        p.sendLogin(s, u)
         s.setblocking(True)
         message = p.receiveMessage(s)
         s.setblocking(False)
@@ -115,7 +115,7 @@ class MainMenu(QWidget):
 
     def logout(self):
         print('Requesting logout')
-        p.sendLogout(s, u.username, u.token)
+        p.sendLogout(s, u)
         s.setblocking(True)
         message = p.receiveMessage(s)
         s.setblocking(False)
