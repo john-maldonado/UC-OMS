@@ -6,7 +6,7 @@ import json
 from passlib.context import CryptContext
 
 # Import UC OMS Libraries
-from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions, PObject
+from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions, PObject, OMSUser
 from uc_oms_db_connections import loginDBConnect, ordersDBConnect
 from uc_oms_db_queries import (
     query_selectUsernameAndPasswordByUsername, 
@@ -137,7 +137,7 @@ while True:
                     print('Processing logout for: {} Identified by: {}'.format(user, token))
                     if token in valid_tokens:
                         del valid_tokens[token]
-                    p.sendLogout(notified_socket, '', '')
+                    p.sendLogout(notified_socket, OMSUser(user, ''))
                 # Handle Query
                 elif command == PCommands.query:
                     query_string = message.args
