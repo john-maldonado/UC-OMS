@@ -9,7 +9,7 @@ def query_basic(client_socket, user):
   fieldsString = assembleSQLFields(fields)
   sql = "SELECT {} FROM {}"
   sql = sql.format(fieldsString, table)
-  results, PException = requestQuery(client_socket, user, sql)
+  results, PException = requestSelectQuery(client_socket, user, sql)
   return results, fields, PException
 
 def query_all(db_connection):
@@ -341,9 +341,9 @@ def prettyHeaders(fields_input: list):
           headers.append(x)
   return headers
 
-def requestQuery(client_socket, user, query_string):
+def requestSelectQuery(client_socket, user, query_string):
   p = Protocol()
-  p.sendQuery(client_socket, user, query_string)
+  p.sendSelectQuery(client_socket, user, query_string)
   client_socket.setblocking(True)
   message = p.receiveMessage(client_socket)
   client_socket.setblocking(False)
