@@ -343,7 +343,7 @@ def prettyHeaders(fields_input: list):
 
 def requestSelectQuery(client_socket, user, query_string):
   p = Protocol()
-  p.sendSelectQuery(client_socket, user, query_string)
+  p.sendQuery(client_socket,PCommands.select_query, user, query_string)
   client_socket.setblocking(True)
   message = p.receiveMessage(client_socket)
   client_socket.setblocking(False)
