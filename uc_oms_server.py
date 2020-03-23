@@ -138,7 +138,7 @@ while True:
                     if token in valid_tokens:
                         del valid_tokens[token]
                     p.sendLogout(notified_socket, OMSUser(user, ''))
-                # Handle Query
+                # Handle Select Queries
                 elif command == PCommands.select_query:
                     query_string = message.args
                     user = message.user
