@@ -28,7 +28,7 @@ class PCommands():
     logout = 'LOGOUT'
     authenticate = 'AUTH'
     exception = 'EXCEPT'
-    query = 'QUERY'
+    select_query = 'S_QUERY'
     sendResults = 'RESULT'
 
 class PMessage():
@@ -112,8 +112,8 @@ class Protocol(object):
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
-    def sendQuery(self, client_socket, user: OMSUser, query_string: str):
-        command = PCommands.query
+    def sendSelectQuery(self, client_socket, user: OMSUser, query_string: str):
+        command = PCommands.select_query
         args = query_string
         message = PMessage(command, args, user.username, user.token)
         packet = self.buildPacket(message)
@@ -151,7 +151,7 @@ class Protocol(object):
             # and that's also a cause when we receive an empty message
             return False
 
-    def sendResults(self, client_socket, results_json: str):
+    def sendQueryResults(self, client_socket, results_json: str):
         command = PCommands.sendResults
         args = results_json
         user = ''

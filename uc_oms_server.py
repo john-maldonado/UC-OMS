@@ -139,7 +139,7 @@ while True:
                         del valid_tokens[token]
                     p.sendLogout(notified_socket, OMSUser(user, ''))
                 # Handle Query
-                elif command == PCommands.query:
+                elif command == PCommands.select_query:
                     query_string = message.args
                     user = message.user
                     print('Recieved query request from: {}'.format(user))
@@ -166,7 +166,7 @@ while True:
                                 results_bool = False
                             # Send client notification if query succeeded
                             results_bool_string = json.dumps(results_bool)
-                            p.sendResults(notified_socket, results_bool_string)
+                            p.sendQueryResults(notified_socket, results_bool_string)
                             # If query succeeded send results object
                             if results_bool:
                                 results_PObject = PObject(PObject.object_types.sql_results, results)
