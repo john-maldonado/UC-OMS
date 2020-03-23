@@ -29,6 +29,9 @@ class PCommands():
     authenticate = 'AUTH'
     exception = 'EXCEPT'
     select_query = 'S_QUERY'
+    insert_query = 'I_QUERY'
+    update_query = 'U_QUERY'
+    delete_query = 'D_QUERY'
     sendResults = 'RESULT'
 
 class PMessage():
@@ -112,8 +115,8 @@ class Protocol(object):
         packet = self.buildPacket(message)
         client_socket.send(packet)
 
-    def sendSelectQuery(self, client_socket, user: OMSUser, query_string: str):
-        command = PCommands.select_query
+    def sendQuery(self, client_socket, query_type: str, user: OMSUser, query_string: str):
+        command = query_type
         args = query_string
         message = PMessage(command, args, user.username, user.token)
         packet = self.buildPacket(message)
