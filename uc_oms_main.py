@@ -10,7 +10,7 @@ from MainMenu import Ui_MainMenu
 from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog, TimeLogDialog, SOSearchDialog
 
 from uc_oms_db_queries import (
-    prettyHeaders, translateResults
+    prettyHeaders, translateResults, query_selectAllOpen
 )
 
 from uc_oms_protocol import Protocol, PCommands
@@ -134,11 +134,13 @@ class MainMenu(QWidget):
     def reviewOpenSalesOrders(self):
         print('Review Open Sales Orders')
         dialog = OpenSalesOrderDialog()
-        db_connection = db_connect()
-        results, fields = query_allopen(db_connection)
-        data = translateResults(results, fields)
-        headers = prettyHeaders(fields)
-        dialog.populateTable(data, headers)
+        results, fields, exception = query_selectAllOpen(s, u)
+        if exception is False:
+            data = translateResults(results, fields)
+            headers = prettyHeaders(fields)
+            dialog.populateTable(data, headers)
+        else:
+            QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
         dialog.exec_()
 
     def run(self):

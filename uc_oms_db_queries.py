@@ -9,8 +9,8 @@ def query_selectBasic(client_socket, user):
   fieldsString = assembleSQLFields(fields)
   sql = "SELECT {} FROM {}"
   sql = sql.format(fieldsString, table)
-  results, PException = requestSelectQuery(client_socket, user, sql)
-  return results, fields, PException
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_selectAll(db_connection):
   table = "sales_orders"
@@ -23,17 +23,15 @@ def query_selectAll(db_connection):
   myresult = mycursor.fetchall()
   return myresult, fields
 
-def query_selectAllOpen(db_connection):
+def query_selectAllOpen(client_socket, user):
   table = "sales_orders"
   fields = ['so_id', 'so_number', 'description', 'customer', 'order_date','due_date', 'completed', 'invoiced', 'invoice_amount', 'paid_amount', 'paid_full']
   fieldsString = assembleSQLFields(fields)
   condition = "closed = 0"
-  mycursor = db_connection.cursor()
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult, fields
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_insertIntoTimeLog(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
