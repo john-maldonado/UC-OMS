@@ -6,6 +6,8 @@ from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog, QInpu
 from PySide2.QtCore import Qt, QFile, QDate, QAbstractTableModel, SIGNAL
 # pylint: enable=no-name-in-module
 
+from LoginForm import Ui_LoginForm
+from MainMenu import Ui_MainMenu
 from SalesOrderEntryForm import Ui_SalesOrderEntryForm
 from SalesOrderEntryVerifyDialog import Ui_SalesOrderEntryVerifyDialog
 from OpenSalesOrderDialog import Ui_OpenSalesOrderDialog
@@ -14,7 +16,7 @@ from DateTimeEditDialog import Ui_DateTimeEditDialog
 from SOSearchDialog import Ui_SOSearchDialog
 
 from uc_oms_protocol import (
-    OMSUser
+    Protocol, OMSUser, PCommands
 )
 
 from db_interface import (
@@ -23,8 +25,120 @@ from db_interface import (
 )
 
 from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_insertIntoSalesOrders, query_selectMaxSalesOrder
+    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder
 )
+
+# Login Screen
+class LoginForm(QWidget):
+    def __init__(self, app: QApplication, s: socket.socket, u: OMSUser):
+
+        super(LoginForm, self).__init__()
+        self.ui = Ui_LoginForm()
+        self.ui.setupUi(self)
+        self.ui.exit.clicked.connect(self.exit)
+        self.ui.login.clicked.connect(self.login)
+        self.ui.password.returnPressed.connect(self.login)
+        self.action = 'none'
+        self.ui.username.setFocus()
+        self.app = app
+        self.s = s
+        self.u = u
+
+    
+    def login(self):
+        self.u.username = self.ui.username.text()
+        self.u.password = self.ui.password.text()
+        Protocol().sendLogin(self.s, self.u)
+        self.s.setblocking(True)
+        message = Protocol().receiveMessage(self.s)
+        self.s.setblocking(False)
+        if message.command == PCommands.authenticate:
+            token = message.token
+            print('Succesfully Authenticated!')
+            print('Token: {}'.format(token))
+            self.u.authenticated = True
+            self.u.token = token
+        if self.u.authenticated:
+            self.action = 'login'
+            self.close()
+        else:
+            self.action = 'none'
+            msg_box = QMessageBox()
+            msg_box.setText('Login failed.')
+            msg_box.setStyleSheet("QLabel{min-width: 75px;}")
+            msg_box.exec_()
+
+
+    def exit(self):
+        self.action = 'exit'
+        self.close()
+
+
+    def run(self):
+        self.show()
+        self.app.exec_()
+        return self.action
+
+# Main Menu
+class MainMenu(QWidget):
+    def __init__(self, app: QApplication, s: socket.socket, u: OMSUser):
+
+        super(MainMenu, self).__init__()
+        self.ui = Ui_MainMenu()
+        self.ui.setupUi(self)
+        self.ui.newSalesOrder.clicked.connect(self.newSalesOrder)
+        self.ui.logout.clicked.connect(self.logout)
+        self.ui.viewOpenOrders.clicked.connect(self.reviewOpenSalesOrders)
+        self.ui.timeLog.clicked.connect(self.timeLog)
+        self.ui.salesOrderSearch.clicked.connect(self.soSearch)
+        self.action = 'none'
+        self.app = app
+        self.s = s
+        self.u = u
+
+
+    def timeLog(self):
+        dialog = TimeLogDialog()
+        dialog.exec_()
+
+    def soSearch(self):
+        dialog = SOSearchDialog()
+        dialog.exec_()
+
+    def logout(self):
+        print('Requesting logout')
+        Protocol().sendLogout(self.s, self.u)
+        self.s.setblocking(True)
+        message = Protocol().receiveMessage(self.s)
+        self.s.setblocking(False)
+        if message.command == PCommands.logout:
+            self.u.token = ''
+            self.u.authenticated = False
+            print('Logged Out')
+        self.action = 'logout'
+        self.close()
+    
+    def newSalesOrder(self):
+        print('New Sales Order')
+        newSalesOrderWindow = SalesOrderEntryForm(self.s, self.u)
+        newSalesOrderWindow.exec_()
+    
+    def reviewOpenSalesOrders(self):
+        print('Review Open Sales Orders')
+        dialog = OpenSalesOrderDialog()
+        results, fields, exception = query_selectAllOpen(self.s, self.u)
+        if exception is False:
+            data = translateResults(results, fields)
+            headers = prettyHeaders(fields)
+            dialog.populateTable(data, headers)
+            dialog.exec_()
+        else:
+            QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
+
+    def run(self):
+        self.show()
+        self.app.exec_()
+        return self.action
 
 # Sales Order Entry Verification Dialog
 class SalesOrderEntryVerifyDialog(QDialog):
