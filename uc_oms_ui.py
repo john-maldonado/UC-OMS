@@ -287,9 +287,10 @@ class TimeLogDialog(QDialog):
         self.ui.deleteButton.clicked.connect(self.delete)
         self.ui.edit.clicked.connect(self.edit)
         self.ui.total.clicked.connect(self.total)
-        self.soSearch()
         self.s = s
         self.u = u
+        self.soSearch()
+        
     
     def clockIn(self):
         sales_order = self.sales_order
