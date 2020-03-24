@@ -9,8 +9,8 @@ from LoginForm import Ui_LoginForm
 from MainMenu import Ui_MainMenu
 from ui_windows import SalesOrderEntryForm, OpenSalesOrderDialog, TimeLogDialog, SOSearchDialog
 
-from db_interface import (
-    db_connect, query_allopen, translateResults, prettyHeaders
+from uc_oms_db_queries import (
+    prettyHeaders, translateResults
 )
 
 from uc_oms_protocol import Protocol, PCommands
