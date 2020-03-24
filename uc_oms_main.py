@@ -46,7 +46,7 @@ s.setblocking(False)
 
 # Login Screen
 class LoginForm(QWidget):
-    def __init__(self):
+    def __init__(self, app: QApplication, a_user: OMSUser):
 
         super(LoginForm, self).__init__()
         self.ui = Ui_LoginForm()
@@ -56,6 +56,8 @@ class LoginForm(QWidget):
         self.ui.password.returnPressed.connect(self.login)
         self.action = 'none'
         self.ui.username.setFocus()
+        self.u = a_user
+        self.app = app
     
     def login(self):
         u.username = self.ui.username.text()
@@ -68,8 +70,8 @@ class LoginForm(QWidget):
             token = message.token
             print('Succesfully Authenticated!')
             print('Token: {}'.format(token))
-            u.authenticated = True
-            u.token = token
+            self.u.authenticated = True
+            self.u.token = token
         if u.authenticated:
             self.action = 'login'
             self.close()
@@ -88,12 +90,12 @@ class LoginForm(QWidget):
 
     def run(self):
         self.show()
-        qt_app.exec_()
+        self.app.exec_()
         return self.action
 
 # Main Menu
 class MainMenu(QWidget):
-    def __init__(self):
+    def __init__(self, app: QApplication, a_user: OMSUser):
 
         super(MainMenu, self).__init__()
         self.ui = Ui_MainMenu()
@@ -104,6 +106,8 @@ class MainMenu(QWidget):
         self.ui.timeLog.clicked.connect(self.timeLog)
         self.ui.salesOrderSearch.clicked.connect(self.soSearch)
         self.action = 'none'
+        self.u = a_user
+        self.app = app
 
     def timeLog(self):
         dialog = TimeLogDialog()
@@ -120,8 +124,8 @@ class MainMenu(QWidget):
         message = p.receiveMessage(s)
         s.setblocking(False)
         if message.command == PCommands.logout:
-            u.token = ''
-            u.authenticated = False
+            self.u.token = ''
+            self.u.authenticated = False
             print('Logged Out')
         self.action = 'logout'
         self.close()
@@ -145,7 +149,7 @@ class MainMenu(QWidget):
 
     def run(self):
         self.show()
-        qt_app.exec_()
+        self.app.exec_()
         return self.action
 
 if __name__ == "__main__":
@@ -165,11 +169,11 @@ if __name__ == "__main__":
             if command == PCommands.connect:
                 print('Connected to server!')
                 # Show Login Screen
-                app = LoginForm()
+                app = LoginForm(qt_app, u)
                 login_action = app.run()
                 if login_action == 'login':
                     # Proceed to Main Menu
-                    app = MainMenu()
+                    app = MainMenu(qt_app, u)
                     main_action = app.run()
                     if main_action == 'logout':
                         Exit = False
