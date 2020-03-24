@@ -57,7 +57,7 @@ def query_selectTimeLogBySO(client_socket: socket.socket, user: OMSUser, SalesOr
   condition = condition.format(SalesOrderString)
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  results, fields, exception = requestSelectQuery(client_socket, user, sql)
+  results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
 def query_updateTimeLogClockOut(db_connection, logID, activity):
