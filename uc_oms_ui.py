@@ -98,7 +98,7 @@ class MainMenu(QWidget):
 
 
     def timeLog(self):
-        dialog = TimeLogDialog()
+        dialog = TimeLogDialog(self.s, self.u)
         dialog.exec_()
 
     def soSearch(self):
@@ -276,7 +276,7 @@ class OpenSalesOrderDialog(QDialog):
         
 # Time Log Dialog
 class TimeLogDialog(QDialog):
-    def __init__(self):
+    def __init__(self, s: socket.socket, u: OMSUser):
         super(TimeLogDialog, self).__init__()
         self.ui = Ui_TimeLogDialog()
         self.ui.setupUi(self)
@@ -288,6 +288,8 @@ class TimeLogDialog(QDialog):
         self.ui.edit.clicked.connect(self.edit)
         self.ui.total.clicked.connect(self.total)
         self.soSearch()
+        self.s = s
+        self.u = u
     
     def clockIn(self):
         sales_order = self.sales_order
