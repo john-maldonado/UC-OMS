@@ -363,7 +363,7 @@ def requestSelectQuery(client_socket, user, query_string):
 
 def requestInsertQuery(client_socket: socket.socket, user: OMSUser, query_string: str):
   p = Protocol()
-  p.sendQuery(client_socket,PCommands.select_query, user, query_string)
+  p.sendQuery(client_socket,PCommands.insert_query, user, query_string)
   client_socket.setblocking(True)
   message = p.receiveMessage(client_socket)
   client_socket.setblocking(False)
