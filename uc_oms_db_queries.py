@@ -165,7 +165,7 @@ def query_selectMaxSalesOrder(client_socket: socket.socket, user: OMSUser):
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, field, exception
 
-def query_insertIntoSalesOrders(db_connection,salesOrder, description, customer, orderDate, dueDate):
+def query_insertIntoSalesOrders(client_socket: socket.socket, user: OMSUser, salesOrder, description, customer, orderDate, dueDate):
   table = "sales_orders"
   fields = ['so_number', 'description', 'customer', 'order_date', 'due_date']
   fieldsString = assembleSQLFields(fields)
@@ -173,9 +173,8 @@ def query_insertIntoSalesOrders(db_connection,salesOrder, description, customer,
   values = values.format(salesOrder, description, customer, orderDate, dueDate)
   sql = "INSERT INTO {} ({}) VALUES ({})"
   sql = sql.format(table,fieldsString,values)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  db_connection.commit()
+  result, exception = requestInsertQuery(client_socket, user, sql)
+  return result, exception
 
 def query_updateSalesOrderSingleField(db_connection, salesOrder, field, value):
   table = "sales_orders"
