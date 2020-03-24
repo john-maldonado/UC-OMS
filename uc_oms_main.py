@@ -46,7 +46,7 @@ s.setblocking(False)
 
 # Login Screen
 class LoginForm(QWidget):
-    def __init__(self, app: QApplication, a_user: OMSUser):
+    def __init__(self, app: QApplication, s: socket.socket, u: OMSUser):
 
         super(LoginForm, self).__init__()
         self.ui = Ui_LoginForm()
@@ -56,13 +56,15 @@ class LoginForm(QWidget):
         self.ui.password.returnPressed.connect(self.login)
         self.action = 'none'
         self.ui.username.setFocus()
-        self.u = a_user
         self.app = app
+        self.s = s
+        self.u = u
+
     
     def login(self):
         u.username = self.ui.username.text()
         u.password = self.ui.password.text()
-        p.sendLogin(s, u)
+        p.sendLogin(self.s, self.u)
         s.setblocking(True)
         message = p.receiveMessage(s)
         s.setblocking(False)
@@ -95,7 +97,7 @@ class LoginForm(QWidget):
 
 # Main Menu
 class MainMenu(QWidget):
-    def __init__(self, app: QApplication, a_user: OMSUser):
+    def __init__(self, app: QApplication, s: socket.socket, u: OMSUser):
 
         super(MainMenu, self).__init__()
         self.ui = Ui_MainMenu()
@@ -106,8 +108,10 @@ class MainMenu(QWidget):
         self.ui.timeLog.clicked.connect(self.timeLog)
         self.ui.salesOrderSearch.clicked.connect(self.soSearch)
         self.action = 'none'
-        self.u = a_user
         self.app = app
+        self.s = s
+        self.u = u
+
 
     def timeLog(self):
         dialog = TimeLogDialog()
@@ -119,7 +123,7 @@ class MainMenu(QWidget):
 
     def logout(self):
         print('Requesting logout')
-        p.sendLogout(s, u)
+        p.sendLogout(self.s, self.u)
         s.setblocking(True)
         message = p.receiveMessage(s)
         s.setblocking(False)
@@ -132,20 +136,20 @@ class MainMenu(QWidget):
     
     def newSalesOrder(self):
         print('New Sales Order')
-        newSalesOrderWindow = SalesOrderEntryForm()
+        newSalesOrderWindow = SalesOrderEntryForm(self.s, self.u)
         newSalesOrderWindow.exec_()
     
     def reviewOpenSalesOrders(self):
         print('Review Open Sales Orders')
         dialog = OpenSalesOrderDialog()
-        results, fields, exception = query_selectAllOpen(s, u)
+        results, fields, exception = query_selectAllOpen(self.s, self.u)
         if exception is False:
             data = translateResults(results, fields)
             headers = prettyHeaders(fields)
             dialog.populateTable(data, headers)
+            dialog.exec_()
         else:
             QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
-        dialog.exec_()
 
     def run(self):
         self.show()
@@ -169,11 +173,11 @@ if __name__ == "__main__":
             if command == PCommands.connect:
                 print('Connected to server!')
                 # Show Login Screen
-                app = LoginForm(qt_app, u)
+                app = LoginForm(qt_app, s, u)
                 login_action = app.run()
                 if login_action == 'login':
                     # Proceed to Main Menu
-                    app = MainMenu(qt_app, u)
+                    app = MainMenu(qt_app, s, u)
                     main_action = app.run()
                     if main_action == 'logout':
                         Exit = False
