@@ -3,7 +3,7 @@ import json
 import pickle
 
 class OMSUser():
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str = None, password: str = None):
         self.username = username
         self.password = password
         self.token = ''
