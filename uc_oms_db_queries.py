@@ -34,7 +34,7 @@ def query_selectAllOpen(client_socket, user):
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
-def query_insertIntoTimeLog(db_connection, SalesOrder):
+def query_insertIntoTimeLog(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   TimeStamp = "{}".format(time.strftime('%Y-%m-%d %H:%M:%S'))
   table = "time_log"
@@ -44,9 +44,8 @@ def query_insertIntoTimeLog(db_connection, SalesOrder):
   values = values.format(SalesOrderString,TimeStamp)
   sql = "INSERT INTO {} ({}) VALUES ({})"
   sql = sql.format(table, fieldsString, values)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  db_connection.commit()
+  result, exception = requestInsertQuery(client_socket, user, sql)
+  return result, fields, exception
 
 def query_selectTimeLogBySO(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)

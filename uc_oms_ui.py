@@ -20,12 +20,12 @@ from uc_oms_protocol import (
 )
 
 from db_interface import (
-    db_connect, query_insertIntoTimeLog,
+    db_connect,
     query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField, query_timeLogTotalTimeBySO
 )
 
 from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_selectTimeLogBySO
+    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO
 )
 
 # Login Screen
@@ -291,12 +291,16 @@ class TimeLogDialog(QDialog):
         self.u = u
         self.soSearch()
         
-    
     def clockIn(self):
         sales_order = self.sales_order
-        db_connection = db_connect()
-        query_insertIntoTimeLog(db_connection, sales_order)
-        self.refreshTable()
+        result, _, exception = query_insertIntoTimeLog(self.s, self.u, sales_order)
+        if exception is False:
+            if result:
+                self.refreshTable()
+            else:
+                QMessageBox.warning(self, 'Error', 'Error: Insert Query Failed', QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
     
     def clockOut(self):
         log_id = self.getSelectedTableDataByColumn(0)
