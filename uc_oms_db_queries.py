@@ -1,7 +1,8 @@
 import time
 import datetime
 import json
-from uc_oms_protocol import Protocol, PCommands, PExceptions
+import socket
+from uc_oms_protocol import Protocol, PCommands, PExceptions, OMSUser
 
 def query_selectBasic(client_socket, user):
   table = "sales_orders"
@@ -156,15 +157,13 @@ def query_selectSalesOrderByCustomer(db_connection, Customer):
   myresult = mycursor.fetchall()
   return myresult, fields
 
-def query_selectMaxSalesOrder(db_connection):
+def query_selectMaxSalesOrder(client_socket: socket.socket, user: OMSUser):
   table = "sales_orders"
   field = "so_number"
   sql = "SELECT MAX({}) FROM {}"
   sql = sql.format(field, table)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult[0][0]
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, field, exception
 
 def query_insertIntoSalesOrders(db_connection,salesOrder, description, customer, orderDate, dueDate):
   table = "sales_orders"
