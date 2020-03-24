@@ -48,7 +48,7 @@ def query_insertIntoTimeLog(db_connection, SalesOrder):
   mycursor.execute(sql)
   db_connection.commit()
 
-def query_selectTimeLogBySO(db_connection, SalesOrder):
+def query_selectTimeLogBySO(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
@@ -57,11 +57,8 @@ def query_selectTimeLogBySO(db_connection, SalesOrder):
   condition = condition.format(SalesOrderString)
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  # print(tabulate(myresult, headers=fields, tablefmt='psql'))
-  return myresult, fields
+  results, fields, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_updateTimeLogClockOut(db_connection, logID, activity):
   TimeStamp = "{}".format(time.strftime('%Y-%m-%d %H:%M:%S'))
