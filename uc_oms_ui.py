@@ -259,7 +259,6 @@ class SOSearchDialog(QDialog):
             self.ui.field2.setDisabled(False)
             self.ui.dateInput2.setDisabled(False)
 
-
 # Open Sales Orders Dialog
 class OpenSalesOrderDialog(QDialog):
     def __init__(self):
