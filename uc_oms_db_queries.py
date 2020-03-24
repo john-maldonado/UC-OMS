@@ -361,3 +361,19 @@ def requestSelectQuery(client_socket, user, query_string):
       results = False
       exception = message.args
       return results, exception
+
+def requestInsertQuery(client_socket: socket.socket, user: OMSUser, query_string: str):
+  p = Protocol()
+  p.sendQuery(client_socket,PCommands.select_query, user, query_string)
+  client_socket.setblocking(True)
+  message = p.receiveMessage(client_socket)
+  client_socket.setblocking(False)
+  if message.command == PCommands.sendResults:
+      result_bool = json.loads(message.args)
+      result = result_bool
+      exception = False
+      return result, exception
+  elif message.command == PCommands.exception:
+      result = False
+      exception = message.args
+      return result, exception
