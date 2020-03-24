@@ -146,7 +146,7 @@ while True:
                 elif command == PCommands.select_query:
                     query_string = message.args
                     user = message.user
-                    print('Recieved query request from: {}'.format(user))
+                    print('Recieved select query request from: {}'.format(user))
                     print('Query string: {}'.format(query_string))
                     token = message.token
                     if token in valid_tokens:
@@ -175,6 +175,38 @@ while True:
                             if results_bool:
                                 results_PObject = PObject(PObject.object_types.sql_results, results)
                                 p.sendPObject(notified_socket, results_PObject)
+                        else:
+                            print('Error: User did not match token')
+                            p.sendException(notified_socket, PExceptions.invalid_token)
+                    else:
+                        print('Error: Invalid token')
+                        p.sendException(notified_socket, PExceptions.invalid_token)
+                # Handle Insert Queries
+                elif command == PCommands.insert_query:
+                    query_string = message.args
+                    user = message.user
+                    print('Recieved insert query request from: {}'.format(user))
+                    print('Query string: {}'.format(query_string))
+                    token = message.token
+                    if token in valid_tokens:
+                        if user == valid_tokens[token]:
+                            print('Processing query')
+                            results = False
+                            results_bool = False
+                            # Try query
+                            try: 
+                                sql = message.args
+                                db_connection = ordersDBConnect()
+                                mycursor = db_connection.cursor()
+                                mycursor.execute(sql)
+                                db_connection.commit()
+                                results_bool = True
+                            except Exception as e:
+                                print(e)
+                                results_bool = False
+                            # Send client notification if query succeeded
+                            results_bool_string = json.dumps(results_bool)
+                            p.sendQueryResults(notified_socket, results_bool_string)
                         else:
                             print('Error: User did not match token')
                             p.sendException(notified_socket, PExceptions.invalid_token)
