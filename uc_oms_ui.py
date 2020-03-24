@@ -20,12 +20,12 @@ from uc_oms_protocol import (
 )
 
 from db_interface import (
-    db_connect, query_timeLogBySO, query_insertIntoTimeLog,
+    db_connect, query_insertIntoTimeLog,
     query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField, query_timeLogTotalTimeBySO
 )
 
 from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder
+    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_selectTimeLogBySO
 )
 
 # Login Screen
@@ -392,13 +392,15 @@ class TimeLogDialog(QDialog):
             self.refreshTable()
     
     def refreshTable(self):
-        db_connection = db_connect()
-        results, fields = query_timeLogBySO(db_connection, self.sales_order)
-        data = translateResults(results, fields)
-        headers = prettyHeaders(fields)
-        self.populateTable(data, headers)
-        self.table_data = data
-        self.table_headers = headers
+        results, fields, exception = query_selectTimeLogBySO(self.s, self.u, self.sales_order)
+        if exception is False:
+            data = translateResults(results, fields)
+            headers = prettyHeaders(fields)
+            self.populateTable(data, headers)
+            self.table_data = data
+            self.table_headers = headers
+        else:
+            QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
 
     def populateTable(self, data_list, header):
         table_model = MyTableModel(self, data_list, header)
