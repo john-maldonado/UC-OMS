@@ -106,6 +106,10 @@ while True:
             # Else, process the command
             else:
                 command = message.command
+                # Handle Connect requests for existing clients
+                if command == PCommands.connect:
+                    # Send connect acknowledgment
+                    p.sendConnect(notified_socket)
                 # Handle Login
                 if command == PCommands.login:
                     user = message.user
