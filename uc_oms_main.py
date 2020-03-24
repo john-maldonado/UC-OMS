@@ -13,16 +13,9 @@ from uc_oms_db_queries import (
     prettyHeaders, translateResults, query_selectAllOpen
 )
 
-from uc_oms_protocol import Protocol, PCommands
+from uc_oms_protocol import Protocol, PCommands, OMSUser
 
 import socket
-
-class OMSUser():
-    def __init__(self, username: str = None, password: str = None):
-        self.username = username
-        self.password = password
-        self.token = ''
-        self.authenticated = False
 
 # Define Qt App
 qt_app = QApplication(sys.argv)
