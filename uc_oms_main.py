@@ -1,38 +1,23 @@
 import sys
+import socket
+
 from datetime import datetime
 # pylint: disable=no-name-in-module
-from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog
-from PySide2.QtCore import QFile, QDate
+from PySide2.QtWidgets import QApplication
 # pylint: enable=no-name-in-module
 
-from LoginForm import Ui_LoginForm
-from MainMenu import Ui_MainMenu
 from uc_oms_ui import LoginForm, MainMenu
-
-from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_selectAllOpen
-)
-
 from uc_oms_protocol import Protocol, PCommands, OMSUser
-
-import socket
 
 # Define Qt App
 qt_app = QApplication(sys.argv)
-# Define Protocal Instance
-p = Protocol()
+
 # Define User Instance
 u = OMSUser()
 
 # Create socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Connect to a given ip and port
-IP = "10.0.0.119"
-PORT = 4444
-
-# Create Socket
-s.connect((IP, PORT))
+s.connect(("10.0.0.119", 4444))
 
 # Set connection to non-blocking state, so .recv() call won't block, just return some exception we'll handle
 s.setblocking(False)
@@ -42,9 +27,9 @@ if __name__ == "__main__":
     while (not Exit):
 
         # Initiate Connection
-        p.sendConnect(s)
+        Protocol().sendConnect(s)
         s.setblocking(True)
-        message = p.receiveMessage(s)
+        message = Protocol().receiveMessage(s)
         s.setblocking(False)
         if message is False:
             print('Failed to connect to server')
