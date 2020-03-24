@@ -1,4 +1,5 @@
 import operator
+import socket
 
 # pylint: disable=no-name-in-module
 from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog, QInputDialog, QComboBox
@@ -12,9 +13,17 @@ from TimeLogDialog import Ui_TimeLogDialog
 from DateTimeEditDialog import Ui_DateTimeEditDialog
 from SOSearchDialog import Ui_SOSearchDialog
 
+from uc_oms_protocol import (
+    OMSUser
+)
+
 from db_interface import (
-    db_connect, query_insertIntoSalesOrders, query_maxSalesOrder, query_timeLogBySO, translateResults, prettyHeaders, query_insertIntoTimeLog,
+    db_connect, query_timeLogBySO, query_insertIntoTimeLog,
     query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField, query_timeLogTotalTimeBySO
+)
+
+from uc_oms_db_queries import (
+    prettyHeaders, translateResults, query_insertIntoSalesOrders, query_selectMaxSalesOrder
 )
 
 # Sales Order Entry Verification Dialog
@@ -27,7 +36,7 @@ class SalesOrderEntryVerifyDialog(QDialog):
 
 # Sales Order Entry Form
 class SalesOrderEntryForm(QDialog):
-    def __init__(self):
+    def __init__(self, s : socket.socket, u : OMSUser):
 
         super(SalesOrderEntryForm, self).__init__()
         self.ui = Ui_SalesOrderEntryForm()
@@ -36,6 +45,8 @@ class SalesOrderEntryForm(QDialog):
         self.ui.due_date.setDate(QDate.currentDate())
         self.ui.submit.clicked.connect(self.submit)
         self.ui.cancel.clicked.connect(self.cancel)
+        self.s = s
+        self.u = u
 
     def submit(self):
         description = self.ui.description.text()
@@ -48,20 +59,29 @@ class SalesOrderEntryForm(QDialog):
         dialog.ui.textBrowser.setText(order_details)
         response = dialog.exec_()
         if response == 1:
-            db_connection = db_connect()
-            maxSalesOrder = query_maxSalesOrder(db_connection)
-            maxSalesOrder = maxSalesOrder[2 : : ]
-            maxSalesOrderInt = int(maxSalesOrder)
-            newSalesOrderInt = maxSalesOrderInt + 1
-            newSalesOrder = "SO{}".format(newSalesOrderInt)
-            salesOrder = newSalesOrder
-            query_insertIntoSalesOrders(db_connection, salesOrder, description, customer, order_date, due_date)
-            msgbox = QMessageBox()
-            msgbox.setText("Order entered successfully.<br>SO Number: {}".format(salesOrder))
-            msgbox.setStyleSheet("QLabel{min-width: 175px;}")
-            msgbox.setWindowTitle('Sales Order Entry')
-            msgbox.exec_()
-            self.close()
+            results, _, exception = query_selectMaxSalesOrder(self.s, self.u)
+            if exception is False:
+                result = results[0][0]
+                maxSalesOrder = result[2 : : ]
+                maxSalesOrderInt = int(maxSalesOrder)
+                newSalesOrderInt = maxSalesOrderInt + 1
+                newSalesOrder = "SO{}".format(newSalesOrderInt)
+                salesOrder = newSalesOrder
+                result, exception = query_insertIntoSalesOrders(self.s, self.u, salesOrder, description, customer, order_date, due_date)
+                if exception is False:
+                    if result:
+                        msgbox = QMessageBox()
+                        msgbox.setText("Order entered successfully.<br>SO Number: {}".format(salesOrder))
+                        msgbox.setStyleSheet("QLabel{min-width: 175px;}")
+                        msgbox.setWindowTitle('Sales Order Entry')
+                        msgbox.exec_()
+                        self.close()
+                    else:
+                        QMessageBox.warning(self, 'Error', 'Error: Insert Query Failed', QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
 
     def cancel(self):
         self.close()
