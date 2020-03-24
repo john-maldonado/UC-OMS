@@ -7,7 +7,7 @@ from PySide2.QtCore import QFile, QDate
 
 from LoginForm import Ui_LoginForm
 from MainMenu import Ui_MainMenu
-from uc_oms_ui import LoginForm, MainMenu, SalesOrderEntryForm, OpenSalesOrderDialog, TimeLogDialog, SOSearchDialog
+from uc_oms_ui import LoginForm, MainMenu
 
 from uc_oms_db_queries import (
     prettyHeaders, translateResults, query_selectAllOpen
