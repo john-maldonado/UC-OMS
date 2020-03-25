@@ -26,7 +26,7 @@ from db_interface import (
 )
 
 from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO, query_selectTimeLogTotalTimeBySO
+    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO, query_selectClockinClockoutBySO
 )
 
 # Login Screen
@@ -324,7 +324,7 @@ class TimeLogDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
 
     def total(self):
-        results, _, exception = query_selectTimeLogTotalTimeBySO(self.s, self.u, self.sales_order)
+        results, _, exception = query_selectClockinClockoutBySO(self.s, self.u, self.sales_order)
         if exception is False:
             total_time = self.calculateTotalTime(results)
             msg_box_text = "Sales Order: {}<br>Total Time: {} hrs".format(self.sales_order, total_time)

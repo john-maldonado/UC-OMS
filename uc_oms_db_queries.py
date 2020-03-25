@@ -68,7 +68,7 @@ def query_updateTimeLogClockOut(db_connection, logID, activity):
   mycursor.execute(sql)
   db_connection.commit()
 
-def query_selectTimeLogTotalTimeBySO(client_socket: socket.socket, user: OMSUser, SalesOrder):
+def query_selectClockinClockoutBySO(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
