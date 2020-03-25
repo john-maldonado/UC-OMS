@@ -25,8 +25,10 @@ from db_interface import (
     query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField,
 )
 
-from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO, query_selectClockinClockoutBySO
+from uc_oms_db_funcs import prettyHeaders, translateResults
+
+from uc_oms_db_client_queries import (
+    query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO, query_selectClockinClockoutBySO
 )
 
 # Login Screen
