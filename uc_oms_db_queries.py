@@ -68,7 +68,7 @@ def query_updateTimeLogClockOut(db_connection, logID, activity):
   mycursor.execute(sql)
   db_connection.commit()
 
-def query_selectTimeLogTotalTimeBySO(db_connection, SalesOrder):
+def query_selectTimeLogTotalTimeBySO(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
@@ -77,16 +77,8 @@ def query_selectTimeLogTotalTimeBySO(db_connection, SalesOrder):
   condition = condition.format(SalesOrderString)
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  totalTime = datetime.timedelta(0)
-  for result in myresult:
-   lineTime = result[3]-result[2]
-   totalTime = totalTime + lineTime
-  totalTimeSeconds = totalTime.total_seconds()
-  totalTimeHours = round((totalTimeSeconds/60)/60,2)
-  return totalTimeHours
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_selectTimeLogByLogID(db_connection, logID):
   table = "time_log"
