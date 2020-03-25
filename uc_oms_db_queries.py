@@ -98,7 +98,7 @@ def query_deleteTimeLogByLogID(client_socket: socket.socket, user: OMSUser, logI
   result, exception = requestDeleteQuery(client_socket, user, sql)
   return result, exception
 
-def query_selectSalesOrderBySONumber(db_connection, SalesOrder):
+def query_selectSalesOrderBySONumber(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
@@ -107,10 +107,8 @@ def query_selectSalesOrderBySONumber(db_connection, SalesOrder):
   condition = condition.format(SalesOrderString)
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult, fields
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_selectSalesOrderBySONumberShort(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
