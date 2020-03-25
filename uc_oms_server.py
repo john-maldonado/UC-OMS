@@ -8,10 +8,7 @@ from passlib.context import CryptContext
 # Import UC OMS Libraries
 from uc_oms_protocol import Protocol, PCommands, PMessage, PExceptions, PObject, OMSUser
 from uc_oms_db_connections import loginDBConnect, ordersDBConnect
-from uc_oms_db_queries import (
-    query_selectUsernameAndPasswordByUsername, 
-    query_selectAllOpen
-    )
+from uc_oms_db_queries import query_selectUsernameAndPasswordByUsername
 
 # Set password encryption context
 pwd_context = CryptContext(
