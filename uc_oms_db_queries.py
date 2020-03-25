@@ -89,15 +89,14 @@ def query_selectTimeLogByLogID(client_socket: socket.socket, user: OMSUser, logI
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
-def query_deleteTimeLogByLogID(db_connection, logID):
+def query_deleteTimeLogByLogID(client_socket: socket.socket, user: OMSUser, logID):
   table = "time_log"
   condition = "log_id='{}'"
   condition = condition.format(logID)
   sql = "DELETE FROM {} WHERE {}"
   sql = sql.format(table, condition)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  db_connection.commit()
+  result, exception = requestDeleteQuery(client_socket, user, sql)
+  return result, exception
 
 def query_selectSalesOrderBySONumber(db_connection, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
