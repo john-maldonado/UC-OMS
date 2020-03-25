@@ -57,14 +57,14 @@ def query_selectTimeLogBySO(client_socket: socket.socket, user: OMSUser, SalesOr
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
-def query_updateTimeLogClockOut(db_connection, logID, activity):
+def query_updateTimeLogClockOut(client_socket: socket.socket, user: OMSUser, logID, activity):
   TimeStamp = "{}".format(time.strftime('%Y-%m-%d %H:%M:%S'))
   ActivityString = "{}".format(activity)
+  fields = ['clockout_ts', 'activity']
   sql = "UPDATE time_log SET clockout_ts='{}', activity='{}' WHERE log_id={}"
   sql = sql.format(TimeStamp,ActivityString,logID)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  db_connection.commit()
+  result, exception = requestUpdateQuery(client_socket, user, sql)
+  return result, fields, exception
 
 def query_selectClockinClockoutBySO(client_socket: socket.socket, user: OMSUser, SalesOrder):
   SalesOrderString = "{}".format(SalesOrder)
