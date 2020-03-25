@@ -78,7 +78,7 @@ def query_selectClockinClockoutBySO(client_socket: socket.socket, user: OMSUser,
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
-def query_selectTimeLogByLogID(db_connection, logID):
+def query_selectTimeLogByLogID(client_socket: socket.socket, user: OMSUser, logID):
   table = "time_log"
   fields = ['log_id', 'so_number', 'clockin_ts', 'clockout_ts', 'activity']
   fieldsString = assembleSQLFields(fields)
@@ -86,10 +86,8 @@ def query_selectTimeLogByLogID(db_connection, logID):
   condition = condition.format(logID)
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult, fields
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_deleteTimeLogByLogID(db_connection, logID):
   table = "time_log"
