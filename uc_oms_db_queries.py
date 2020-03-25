@@ -122,7 +122,7 @@ def query_selectSalesOrderBySONumberShort(client_socket: socket.socket, user: OM
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
-def query_selectSalesOrderByCustomer(db_connection, Customer):
+def query_selectSalesOrderByCustomer(client_socket: socket.socket, user: OMSUser, Customer):
   CustomerString = "{}".format(Customer)
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
@@ -131,11 +131,9 @@ def query_selectSalesOrderByCustomer(db_connection, Customer):
   condition = condition.format(CustomerString)
   sql = "SELECT {} FROM {} WHERE {}"
   sql = sql.format(fieldsString, table, condition)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult, fields
-
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
+  
 def query_selectMaxSalesOrder(client_socket: socket.socket, user: OMSUser):
   table = "sales_orders"
   field = "so_number"
