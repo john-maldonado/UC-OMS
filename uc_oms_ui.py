@@ -1,5 +1,6 @@
 import operator
 import socket
+import datetime
 
 # pylint: disable=no-name-in-module
 from PySide2.QtWidgets import QApplication, QWidget, QMessageBox, QDialog, QInputDialog, QComboBox
@@ -21,11 +22,11 @@ from uc_oms_protocol import (
 
 from db_interface import (
     db_connect,
-    query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField, query_timeLogTotalTimeBySO
+    query_deleteTimeLogByLogID, query_updateTimeLogClockOut, query_updateTimeLogSingleField,
 )
 
 from uc_oms_db_queries import (
-    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO
+    prettyHeaders, translateResults, query_selectAllOpen, query_insertIntoSalesOrders, query_selectMaxSalesOrder, query_insertIntoTimeLog, query_selectTimeLogBySO, query_selectTimeLogTotalTimeBySO
 )
 
 # Login Screen
@@ -323,10 +324,13 @@ class TimeLogDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'Error: No time log entry selected', QMessageBox.Ok)
 
     def total(self):
-        db_connection = db_connect()
-        total_time = query_timeLogTotalTimeBySO(db_connection, self.sales_order)
-        msg_box_text = "Sales Order: {}<br>Total Time: {} hrs".format(self.sales_order, total_time)
-        QMessageBox.information(self, 'Total Time', msg_box_text, QMessageBox.Ok)
+        results, _, exception = query_selectTimeLogTotalTimeBySO(self.s, self.u, self.sales_order)
+        if exception is False:
+            total_time = self.calculateTotalTime(results)
+            msg_box_text = "Sales Order: {}<br>Total Time: {} hrs".format(self.sales_order, total_time)
+            QMessageBox.information(self, 'Total Time', msg_box_text, QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, 'Error', 'Query Exception: {}'.format(exception), QMessageBox.Ok)
 
     def delete(self):
         log_id = self.getSelectedTableDataByColumn(0)
@@ -422,6 +426,15 @@ class TimeLogDialog(QDialog):
         index = self.ui.tableView.model().index(row_index, column_index)
         item_data = self.ui.tableView.model().itemData(index)
         return item_data.get(0)
+
+    def calculateTotalTime(self, data):
+        totalTime = datetime.timedelta(0)
+        for result in data:
+            lineTime = result[3]-result[2]
+            totalTime = totalTime + lineTime
+        totalTimeSeconds = totalTime.total_seconds()
+        totalTimeHours = round((totalTimeSeconds/60)/60,2)
+        return totalTimeHours
 
 class DateTimeEditDialog(QDialog):
     def __init__(self, windowTitle, labelText):
