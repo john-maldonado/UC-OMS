@@ -213,6 +213,70 @@ while True:
                     else:
                         print('Error: Invalid token')
                         p.sendException(notified_socket, PExceptions.invalid_token)
+                # Handle Update Queries
+                elif command == PCommands.update_query:
+                    query_string = message.args
+                    user = message.user
+                    print('Recieved update query request from: {}'.format(user))
+                    print('Query string: {}'.format(query_string))
+                    token = message.token
+                    if token in valid_tokens:
+                        if user == valid_tokens[token]:
+                            print('Processing query')
+                            results = False
+                            results_bool = False
+                            # Try query
+                            try: 
+                                sql = message.args
+                                db_connection = ordersDBConnect()
+                                mycursor = db_connection.cursor()
+                                mycursor.execute(sql)
+                                db_connection.commit()
+                                results_bool = True
+                            except Exception as e:
+                                print(e)
+                                results_bool = False
+                            # Send client notification if query succeeded
+                            results_bool_string = json.dumps(results_bool)
+                            p.sendQueryResults(notified_socket, results_bool_string)
+                        else:
+                            print('Error: User did not match token')
+                            p.sendException(notified_socket, PExceptions.invalid_token)
+                    else:
+                        print('Error: Invalid token')
+                        p.sendException(notified_socket, PExceptions.invalid_token)
+                # Handle Delete Queries
+                elif command == PCommands.delete_query:
+                    query_string = message.args
+                    user = message.user
+                    print('Recieved delete query request from: {}'.format(user))
+                    print('Query string: {}'.format(query_string))
+                    token = message.token
+                    if token in valid_tokens:
+                        if user == valid_tokens[token]:
+                            print('Processing query')
+                            results = False
+                            results_bool = False
+                            # Try query
+                            try: 
+                                sql = message.args
+                                db_connection = ordersDBConnect()
+                                mycursor = db_connection.cursor()
+                                mycursor.execute(sql)
+                                db_connection.commit()
+                                results_bool = True
+                            except Exception as e:
+                                print(e)
+                                results_bool = False
+                            # Send client notification if query succeeded
+                            results_bool_string = json.dumps(results_bool)
+                            p.sendQueryResults(notified_socket, results_bool_string)
+                        else:
+                            print('Error: User did not match token')
+                            p.sendException(notified_socket, PExceptions.invalid_token)
+                    else:
+                        print('Error: Invalid token')
+                        p.sendException(notified_socket, PExceptions.invalid_token)
                 # Handle everything else
                 else:
                     p.sendException(notified_socket, PExceptions.invalid_request)

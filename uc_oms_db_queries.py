@@ -380,3 +380,19 @@ def requestUpdateQuery(client_socket: socket.socket, user: OMSUser, query_string
       result = False
       exception = message.args
       return result, exception
+
+def requestDeleteQuery(client_socket: socket.socket, user: OMSUser, query_string: str):
+  p = Protocol()
+  p.sendQuery(client_socket,PCommands.delete_query, user, query_string)
+  client_socket.setblocking(True)
+  message = p.receiveMessage(client_socket)
+  client_socket.setblocking(False)
+  if message.command == PCommands.sendResults:
+      result_bool = json.loads(message.args)
+      result = result_bool
+      exception = False
+      return result, exception
+  elif message.command == PCommands.exception:
+      result = False
+      exception = message.args
+      return result, exception
