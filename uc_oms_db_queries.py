@@ -13,16 +13,14 @@ def query_selectBasic(client_socket, user):
   results, exception = requestSelectQuery(client_socket, user, sql)
   return results, fields, exception
 
-def query_selectAll(db_connection):
+def query_selectAll(client_socket: socket.socket, user: OMSUser):
   table = "sales_orders"
   fields = ['so_id', 'entered_ts', 'so_number', 'description', 'customer', 'order_date', 'due_date', 'quote_number', 'customer_po', 'completed_date', 'completed', 'invoiced', 'invoice_number', 'invoice_date', 'invoice_amount', 'paid_full', 'paid_date', 'paid_amount', 'closed']
   fieldsString = assembleSQLFields(fields)
   sql = "SELECT {} FROM {}"
   sql = sql.format(fieldsString, table)
-  mycursor = db_connection.cursor()
-  mycursor.execute(sql)
-  myresult = mycursor.fetchall()
-  return myresult, fields
+  results, exception = requestSelectQuery(client_socket, user, sql)
+  return results, fields, exception
 
 def query_selectAllOpen(client_socket, user):
   table = "sales_orders"
