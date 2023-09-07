@@ -12,5 +12,5 @@ Created early in my software egineering career this program demonstrates:
 <li>User Authentication using username and password, and a token mechanism
 
 This repo consists of Front End and Backend applications.
-The Backend application runs on a remote server hosting a MySQL database, and creates an interface to the database.
+The Backend application runs in a container on a remote server hosting a MySQL database, and creates an interface to the database.
 The Frontend application runs on a client PC which provides the GUI and communicates to the Backend using the custom TCP protocol.
